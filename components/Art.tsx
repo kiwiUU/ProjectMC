@@ -48,7 +48,7 @@ const Art: FC = () => {
       <Box fontSize={["3xl", "5xl"]} fontWeight="bold">
         {t("art")}
       </Box>
-      <Grid
+      {/* <Grid
         mt={6}
         // justifyItems="center"
         // alignItems="center"
@@ -69,7 +69,7 @@ const Art: FC = () => {
             />
           );
         })}
-      </Grid>
+      </Grid> */}
     </Flex>
   );
 };
