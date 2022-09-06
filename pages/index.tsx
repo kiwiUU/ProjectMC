@@ -11,10 +11,10 @@ const Home: NextPage = () => {
   return (
     <>
       <Title />
-      <Art />
+      {/* <Art />
       <Story />
       <Question />
-      <Footer />
+      <Footer /> */}
     </>
   );
 };
