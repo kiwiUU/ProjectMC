@@ -1,9 +1,8 @@
-import { Box, Flex, Grid } from "@chakra-ui/react";
+import { Box, Flex, Grid, Text } from "@chakra-ui/react";
 import { useTranslation } from "next-i18next";
 import { FC } from "react";
 import ArtCard from "./ArtCard";
 
-// @ name: 아트 이름, image: public/images에 있는 이미지 이름
 const artCardConfig = [
   {
     name: "1",
@@ -40,36 +39,62 @@ const artCardConfig = [
   
 ];
 
+const storyConfig = [
+  {
+    mt: 0,
+    title: "storyTitle1",
+    description: "story1",
+  }
+];
+
 const Art: FC = () => {
   const { t } = useTranslation("common");
 
   return (
-    <Flex alignItems="center" flexDir="column">
-      <Box fontSize={["3xl", "5xl"]} fontWeight="bold">
-        {t("art")}
-      </Box>
-      <Grid
-        mt={6}
-        // justifyItems="center"
-        // alignItems="center"
-        placeItems="center"
-        templateColumns={[
-          // "repeat(1, 1fr)",
-          // "repeat(1, 1fr)",
-          // "repeat(2, 1fr)",
-          "repeat(4, 1fr)",
-        ]}
+    <Flex alignItems="center" justifyContent="center">
+      <Flex
+        w={["full", "80%", "80%", "50%"]}
+        justifyContent="center"
+        alignItems="center"
+        flexDir={["column", "column", "column", "row"]}
       >
-        {artCardConfig.map((v, i) => {
-          return (
-            <ArtCard
-              key={i}
-              name={v.name}
-              image={v.image}
-            />
-          );
-        })}
-      </Grid>
+        <Grid
+          placeItems="center"
+          templateColumns={[
+            "repeat(3, 1fr)",
+          ]}
+          w={["full", "full", "full", "50%"]}
+        >
+          {artCardConfig.map((v, i) => {
+            return (
+              <ArtCard
+                key={i}
+                name={v.name}
+                image={v.image}
+              />
+            );
+          })}
+        </Grid>
+        <Flex
+          w={["full", "full", "full", "50%"]}
+          justifyContent="center"
+          alignItems="center"
+          ml={[0, 12]}
+        >
+          <Box
+            py={8}
+          >
+            {storyConfig.map((v, i) => {
+              return (
+                <Box key={i} mt={v.mt}>
+                  <Text fontWeight="bold" fontSize={["xl", "5xl"]} color="red.500" textStyle="Symtext">{t(v.title)}</Text>
+                  <Text mt={4} fontSize={["lg", "xl"]}>{t(v.description)}</Text>
+                </Box>
+              );
+            })}
+          </Box>
+        </Flex>
+      </Flex>
     </Flex>
   );
 };

@@ -6,8 +6,14 @@ import Fonts from "public/fonts/Fonts";
 
 const theme = extendTheme({
   fonts: {
-    heading: `'Heading Font Name', sans-serif`,
-    body: `'Body Font Name', sans-serif`,
+    heading: `'Heading Font Roboto-Condensed', sans-serif`,
+    body: `'Body Font Roboto-Condensed', sans-serif`,
+  },
+  textStyles: {
+    Symtext: {
+      // you can also use responsive styles
+      fontFamily: 'Symtext'
+    }
   }
 })
 

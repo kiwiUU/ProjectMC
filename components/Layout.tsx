@@ -9,11 +9,11 @@ interface LayoutProps {
 const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <Box
-      bgGradient='linear(to-b, yellow.400, orange.300)'
+      bgGradient='linear(to-b, cyan.600, orange.300, orange.400)'
       overflow='hidden'
       px={6}
     >
-      {/* <Header /> */}
+      <Header />
       {children}  
     </Box>
   );

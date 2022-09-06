@@ -1,4 +1,4 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { useTranslation } from "next-i18next";
 import { FC } from "react";
 import QuestionCard from "./QuestionCard";
@@ -55,11 +55,9 @@ const Question: FC = () => {
       minH="100vh"
       alignItems="center"
       flexDir="column"
-      mt={16}
+      mt={[100, 240]}
     >
-      <Box fontSize={["md", "md", "lg", "4xl"]} fontWeight="bold" mt={4} mb={4}>
-        {t("questions")}
-      </Box>
+      <Text fontWeight="bold" fontSize={["xl", "4xl"]} color="teal.500" textStyle="Symtext" mb={4} textAlign="center">{t("questions")}</Text>
       {questionCardConfig.map((v, i) => {
         return (
           <QuestionCard

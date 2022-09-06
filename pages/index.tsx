@@ -11,9 +11,9 @@ const Home: NextPage = () => {
   return (
     <>
       <Title />
-      {/* <Art />
+      <Art />
       <Story />
-      <Question /> */}
+      <Question />
       <Footer />
     </>
   );

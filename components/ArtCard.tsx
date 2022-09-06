@@ -12,14 +12,10 @@ const ArtCard: FC<ArtCardProps> = ({
 }) => {
   return (
     <Flex
-      //w={200}
-      w={["80%"]}
-      py={3}
-      justifyContent="center"
-      alignItems="center"
-      flexDir="column"
+      w={["90%"]}
+      py={2}
     >
-      <Image src={`../images/${image}`} w={175} alt={name} />
+      <Image src={`../images/${image}`} alt={name} />
     </Flex>
   );
 };

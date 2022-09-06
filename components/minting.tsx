@@ -1,5 +1,5 @@
 import { SearchIcon } from "@chakra-ui/icons";
-import { Box, Button, Divider, Flex, IconButton, Image, Text, useColorMode, useToast } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, IconButton, Image, Stack, StackDivider, Text, useColorMode, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { MINT_NFT_ADDRESS } from "caverConfig";
 import { NextPage } from "next";
@@ -9,8 +9,9 @@ import { useEffect, useState } from "react";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
+import { FC } from "react";
 
-const Minting: NextPage = () => {
+const Minting: FC = () => {
   const [account, setAccount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newNFT, setNewNFT] = useState<any>(undefined);
@@ -163,23 +164,23 @@ const Minting: NextPage = () => {
       flexDir="column"
     >
       {account === "" ? (
-        <Button onClick={connectWallet} size={["sm", "md"]} colorScheme="orange" mt={14}>
+        <Button onClick={connectWallet} size={["sm"]} colorScheme="teal" mt={10} textStyle="Symtext">
           Connect to metamask
         </Button>
       ) : (
-        <Flex flexDir="column" justifyContent="center" alignItems="center" mt={14}>
-          <Text fontSize={["md", "xl"]} color="yellow.700" overflowWrap="anywhere" noOfLines={1}>
+        <Flex flexDir="column" justifyContent="center" alignItems="center" mt={10}>
+          <Text fontSize={["md", "lg"]} fontWeight="bold" overflowWrap="anywhere" noOfLines={1}>
             {account}
           </Text>
-          <Button onClick={() => setAccount("")} colorScheme="orange" size={["sm", "md"]} mt="2">
+          <Button onClick={() => setAccount("")} colorScheme="teal" size={["sm"]} mt="2" textStyle="Symtext">
             Disconnect
           </Button>
         </Flex>
       )}
-      <Flex mt="8" justifyContent="center" flexDir={["column"]} mb="30px">
+      <Flex mt="16" justifyContent="center" flexDir={["column"]} mb="30px">
         <Flex
           justifyContent="center"
-          alignItems="center"
+          alignItems="end"
         >
           {newNFT ? (
             <Image
@@ -197,41 +198,36 @@ const Minting: NextPage = () => {
           )}
         </Flex>
         <Flex 
-            bgColor="orange.500" 
-            direction="column" 
-            justifyContent="space-around" 
-            alignItems="center"
-            mt={2}
+            flexDir="row" 
+            justifyContent="space-between" 
+            alignItems="start"
+            fontSize={["sm", "sm", "md"]}
+            mt={4}
           >
-            <Flex direction="column" fontSize={["sm", "sm", "md"]} py="2">
-              <Text textAlign="start" fontWeight="bold" color="yellow.300">Price</Text>
-              <Text textAlign="start">0.1 ETH + gas</Text>
-              <Text textAlign="start" fontWeight="bold" mt={3} color="yellow.300">maximum mints</Text>
-              <Text textAlign="start">1 mint / wallet</Text>
-              <Text textAlign="start" fontWeight="bold" mt={3} color="yellow.300">supply</Text>
-              <Text textAlign="start">{totalSupply} / 10000</Text>
-              <Button
-                size={["sm", "lg"]}
-                colorScheme="green"
-                onClick={onClickMint}
-                disabled={account === "" || isLoading}
-                isLoading={isLoading}
-                loadingText="Loading ..."
-                mt="4"
-              >
-                Mint
-              </Button>
-            </Flex> 
+            <Stack direction="row">
+              {/* <Image src={`../images/ether.svg`} w={"10%"}/> */}
+              <Text color="gray.600">price</Text>
+              <Text fontWeight="bold">0.1 ETH + GAS</Text>
+            </Stack >
+            <Stack direction="row">
+              <Text color="gray.600">total</Text>
+              <Text fontWeight="bold">{totalSupply} / 11,000</Text>
+            </Stack >
         </Flex>
+        <Button
+            size={["sm", "md"]}
+            colorScheme="blue"
+            onClick={onClickMint}
+            disabled={account === "" || isLoading}
+            isLoading={isLoading}
+            loadingText="Loading ..."
+            mt="4"
+          >
+          Mint
+        </Button>
       </Flex>
     </Flex>
   );
 };
-
-export const getStaticProps = async ({ locale }: { locale: string }) => ({
-  props: {
-    ...(await serverSideTranslations(locale, ["common"])),
-  },
-});
 
 export default Minting;

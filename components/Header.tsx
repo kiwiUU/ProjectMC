@@ -6,8 +6,7 @@ import { Link as ScrollLink } from "react-scroll";
 import { FaDiscord, FaInstagram, FaTwitter } from "react-icons/fa";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react"
-import Minting from "pages/minting";
-
+import Minting from "./minting";
 
 // @ 로고 이미지는 public/images를 교체하시면 됩니다. URL은 우리 프로젝트의 URL을 작성하시면 됩니다.
 const logoImage = "logo.png";
@@ -54,19 +53,11 @@ const Header: FC = () => {
 
       <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} size={["xs", "md", "lg"]}>
           <ModalOverlay />
-          <ModalContent bgGradient='linear(to-b, yellow.400, orange.300)'>
-            {/* <ModalHeader>Mint</ModalHeader> */}
+          <ModalContent bg="gray.200">
             <ModalCloseButton />
             <ModalBody>
               <Minting />
             </ModalBody>
-  
-            {/* <ModalFooter>
-              <Button colorScheme='blue' mr={3}>
-                Save
-              </Button>
-              <Button onClick={onClose}>Cancel</Button>
-            </ModalFooter> */}
           </ModalContent>
         </Modal>
     </>

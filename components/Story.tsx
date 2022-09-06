@@ -2,15 +2,6 @@ import { Box, Button, Flex, HStack, Image, Tab, TabList, TabPanel, TabPanels, Ta
 import { useTranslation } from "next-i18next";
 import { FC, useState } from "react";
 
-// @ 이미지는 public/images, 스토리 내용은 public/locales의 json 파일을 각각 수정해서 사용하시면 됩니다.
-const storyConfig = [
-  {
-    mt: 0,
-    title: "storyTitle1",
-    description: "story1",
-  }
-];
-
 const raceConfig = [
   {
     name: "apple",
@@ -77,48 +68,25 @@ const Story: FC = () => {
     <Flex
       justifyContent="center"
       alignItems="center"
-      flexDir="column"
-      mt={16}
+      mt={[100, 220]}
     >
       <Flex
-        w={["full", "full", "60%", "50%"]}
+        w={["full", "80%", "80%", "50%"]}
         justifyContent="center"
         alignItems="center"
+        flexDir={["column", "column", "column", "row"]}
       >
-        <Box
-          //mx={8}
-          px={4}
-          py={8}
-        >
-          {storyConfig.map((v, i) => {
-            return (
-              <Box key={i} mt={v.mt}>
-                <Text fontWeight="bold" fontSize={["sm", "xl"]}>{t(v.title)}</Text>
-                <Text mt={2} fontSize={["sm", "md"]}>{t(v.description)}</Text>
-              </Box>
-            );
-          })}
-        </Box>
+          <Box>
+            <Text fontWeight="bold" fontSize={["xl", "5xl"]} color="blue.500" textStyle="Symtext" lineHeight={["base", "shorter"]}>{t("descriptionTitle")}</Text>
+            <Text mt={4} fontSize={["lg", "xl"]}>{t("description")}</Text>
+            {raceConfig.map((v, i) => (
+                <Button key={i} variant='solid' colorScheme={v.color} onClick={() => setIamge(v.image)} mr={2} mt={[2, 4]} size={["sm", "md"]}>
+                  {v.name}
+                </Button>
+              ))}
+          </Box>
+          <Image src={`../images/${image}`} w={["80%", "80%", "60%", "30%"]} ml={[0, 12]} mt={[8, 8, 8, 0]} alt="bandage" shadow="lg"/>
       </Flex>
-      <Flex
-        w={["full", "full", "60%", "40%"]}
-        justifyContent="center"
-        alignItems="center"
-        flexDir={["column", "row"]}
-        mt="8"
-      >
-        <Image shadow="lg" src={`../images/${image}`} w={["60%", "40%"]} alt="bandage" />
-        
-        <Box ml={[0, 10]} mt={[6, 0]}>
-          <Text fontWeight="bold" fontSize={["sm", "xl"]}>{t("descriptionTitle")}</Text>
-          <Text mt={2} fontSize={["sm", "md"]}>{t("description")}</Text>
-          {raceConfig.map((v, i) => (
-              <Button key={i} variant='solid' colorScheme={v.color} onClick={() => setIamge(v.image)} mr={2} mt={2} size={["xs", "sm"]}>
-                {v.name}
-              </Button>
-            ))}
-        </Box>
-    </Flex>
     </Flex>
   );
 };

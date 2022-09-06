@@ -26,12 +26,12 @@ const QuestionCard: FC<QuestionCardProps> = ({
         justifyContent="center"
         flexDir="column"
         shadow="lg"
-        bgColor="yellow.500"
+        bgColor="orange.400"
       >
-        <Text fontSize={["sm", "md", "lg"]} fontWeight="bold">
+        <Text fontSize={["lg", "2xl"]} fontWeight="bold">
           {title}
         </Text>
-        <Text mt={2} fontSize={["xs", "sm", "md"]}>
+        <Text fontSize={["md", "xl"]}>
           {description}
         </Text>
       </Flex>
