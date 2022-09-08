@@ -15,7 +15,7 @@ const ArtCard: FC<ArtCardProps> = ({
       w={["90%"]}
       py={2}
     >
-      <Image src={`../images/${image}`} alt={name} />
+      <Image src={`../images/${image}`} alt={name} rounded="md"/>
     </Flex>
   );
 };

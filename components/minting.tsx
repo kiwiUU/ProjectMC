@@ -1,11 +1,7 @@
-import { SearchIcon } from "@chakra-ui/icons";
-import { Box, Button, Divider, Flex, IconButton, Image, Stack, StackDivider, Text, useColorMode, useToast } from "@chakra-ui/react";
+import { ChevronDownIcon, SearchIcon } from "@chakra-ui/icons";
+import { Badge, Box, Button, Divider, Flex, IconButton, Image, Menu, MenuButton, MenuItem, MenuList, Stack, StackDivider, Text, ToastId, useColorMode, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import { MINT_NFT_ADDRESS } from "caverConfig";
-import { NextPage } from "next";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
@@ -19,11 +15,11 @@ const Minting: FC = () => {
   const [contract, setContract] = useState<Contract>();
   const [totalSupply, setTotalSupply] = useState<number>(0);
   const toast = useToast();
-
+  const toastIdRef = React.useRef<ToastId>();
+  
   const titleImage = "title_sm.png";
   const loadingImage = "loading.png";
-
-  const mintPrice = 5;
+  const mintPrice = '0.1';
 
   //console.log('Minting: ', account);
 
@@ -46,11 +42,21 @@ const Minting: FC = () => {
               const account = changedAccounts.length > 0 ? changedAccounts[0] : "";
               
               setAccount(account);
+
+            });
+
+            window.ethereum.on('chainChanged', function (chainId) {
+              console.log(`chainChanged`);
+              console.log(`chainId: `, chainId);
+
+              window.location.reload();
+
             });
 
             const fetchData = async (contract: Contract) => {
               const totalSupply = await contract!.methods.totalSupply().call();
               setTotalSupply(totalSupply);
+
             };
 
             fetchData(contract);
@@ -64,20 +70,53 @@ const Minting: FC = () => {
   const connectWallet = async () => {
     console.log('connectWallet');
 
-    try {
+    if (typeof window.ethereum !== "undefined") { 
+      try {
         const accounts = await web3!.eth.requestAccounts();
 
         console.log('accounts: ', accounts);
 
         setAccount(accounts[0]);
-    } catch (error) {
-        console.log(error);
-    } 
+
+      } catch (error) {
+          console.log(error);
+      } 
+    } else {
+      toast({
+        title: '',
+        description: "Please reload after installing metamask.",
+        status: 'warning',
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+    
   };
 
   const onClickMint = async () => {
 
     try {
+
+        //const mintPriceWei = web3!.utils.toWei(mintPrice, 'ether');
+        const mintPriceWei = "5";
+        console.log('mintPriceWei: ', mintPriceWei);
+
+        const networkId = await web3!.eth.net.getId(); 
+
+        console.log('networkId: ', networkId);
+
+        // 프로덕션에서 4에서 1로 변경
+        if (networkId != 4) {
+          toast({
+            title: '',
+            description: "You are connected to the wrong network.",
+            status: 'error',
+            duration: 4000,
+            isClosable: true,
+          });
+
+          return;
+        }
         
         const isMint = await contract?.methods.mintList(account).call();
 
@@ -100,7 +139,7 @@ const Minting: FC = () => {
         // 민팅 가격(value), gasPrice, gas
         const response =  await contract!.methods.mintNFT().send({
                 from: account,
-                value: mintPrice
+                value: mintPriceWei
             });
 
         console.log('response: ', response);
@@ -132,7 +171,6 @@ const Minting: FC = () => {
   
                 if (imageResponse.status === 200) {
                   setNewNFT(imageResponse.data);
-
                   supply();
                   console.log('mint success');
                 }
@@ -164,20 +202,26 @@ const Minting: FC = () => {
       flexDir="column"
     >
       {account === "" ? (
-        <Button onClick={connectWallet} size={["sm"]} colorScheme="teal" mt={10} textStyle="Symtext">
+        <Button onClick={connectWallet} size={["md"]} colorScheme="teal" mt={4} textStyle="Symtext">
           Connect to metamask
         </Button>
       ) : (
-        <Flex flexDir="column" justifyContent="center" alignItems="center" mt={10}>
-          <Text fontSize={["md", "lg"]} fontWeight="bold" overflowWrap="anywhere" noOfLines={1}>
-            {account}
-          </Text>
-          <Button onClick={() => setAccount("")} colorScheme="teal" size={["sm"]} mt="2" textStyle="Symtext">
-            Disconnect
-          </Button>
-        </Flex>
+        <Menu>
+          {({ isOpen }) => (
+            <>
+              <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />} colorScheme="teal" mt={4} size={["md"]}>
+                <Box w={"200px"} textOverflow="ellipsis" overflow={"hidden"}>
+                  {account}
+                </Box>
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => setAccount("")}>Disconnect</MenuItem>
+              </MenuList>
+            </>
+          )}
+        </Menu>
       )}
-      <Flex mt="16" justifyContent="center" flexDir={["column"]} mb="30px">
+      <Flex mt="4" mb="2" justifyContent="center" flexDir={["column"]}>
         <Flex
           justifyContent="center"
           alignItems="end"
@@ -187,44 +231,50 @@ const Minting: FC = () => {
               src={newNFT.image}
               fallbackSrc={`../images/${loadingImage}`}
               shadow="lg"
+              rounded={"md"}
               alt="nft"
             />
           ) : (
             <Image
               src={`../images/${loadingImage}`}
               shadow="lg"
+              rounded={"md"}
               alt="loading"
             />
           )}
         </Flex>
         <Flex 
-            flexDir="row" 
-            justifyContent="space-between" 
-            alignItems="start"
+            flexDir="column" 
             fontSize={["sm", "sm", "md"]}
-            mt={4}
+            px={2}
+            py={2}
           >
-            <Stack direction="row">
-              {/* <Image src={`../images/ether.svg`} w={"10%"}/> */}
-              <Text color="gray.600">price</Text>
-              <Text fontWeight="bold">0.1 ETH + GAS</Text>
-            </Stack >
-            <Stack direction="row">
-              <Text color="gray.600">total</Text>
-              <Text fontWeight="bold">{totalSupply} / 11,000</Text>
-            </Stack >
+            <Flex direction="row" justifyContent="space-between">
+              <Stack direction="column" spacing={0}>
+                <Text color="gray.600" as='cite'>price</Text>
+                <Stack direction="row" spacing={2}>
+                  <Image src={`../images/ether.svg`} w={"12%"}/>
+                  <Text fontWeight="bold" fontSize={"md"}>0.1 ETH</Text>
+                </Stack>
+              </Stack >
+              <Stack direction="column" spacing={0}>
+                <Text color="gray.600" as='cite'>total</Text>
+                <Text fontWeight="bold" fontSize={"md"}>{totalSupply} / 11,000</Text>
+              </Stack >
+            </Flex>
+            <Button
+                size={["sm", "md"]}
+                colorScheme="orange"
+                onClick={onClickMint}
+                disabled={account === "" || isLoading}
+                isLoading={isLoading}
+                loadingText="Loading ..."
+                w="100%"
+                mt="2"
+              >
+              MINT
+            </Button>
         </Flex>
-        <Button
-            size={["sm", "md"]}
-            colorScheme="blue"
-            onClick={onClickMint}
-            disabled={account === "" || isLoading}
-            isLoading={isLoading}
-            loadingText="Loading ..."
-            mt="4"
-          >
-          Mint
-        </Button>
       </Flex>
     </Flex>
   );

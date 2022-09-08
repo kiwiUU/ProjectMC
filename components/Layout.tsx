@@ -13,7 +13,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
       overflow='hidden'
       px={6}
     >
-      {/* <Header /> */}
+      <Header />
       {children}  
     </Box>
   );

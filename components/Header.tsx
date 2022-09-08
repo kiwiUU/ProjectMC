@@ -51,15 +51,23 @@ const Header: FC = () => {
         </Flex>
       </Flex>
 
-      <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} size={["xs", "md", "lg"]}>
-          <ModalOverlay />
-          <ModalContent bg="gray.200">
-            <ModalCloseButton />
-            <ModalBody>
-              <Minting />
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+      <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} size={["xs"]}>
+        <ModalOverlay />
+        <ModalContent 
+          //bg="gray.200"
+          bgGradient='linear(to-b, cyan.400, orange.300)'
+        >
+          <ModalBody>
+            <Minting />
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme='orange' mr={2} onClick={onClose} size={["sm"]}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
     
  
