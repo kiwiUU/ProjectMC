@@ -6,37 +6,40 @@ import ArtCard from "./ArtCard";
 const artCardConfig = [
   {
     name: "1",
-    image: "1.gif",
+    image: "mummy1.gif",
   },
   {
     name: "2",
-    image: "2.gif",
+    image: "mummy2.gif",
   },
   {
     name: "3",
-    image: "3.gif",
+    image: "mummy3.gif",
   },
   {
     name: "4",
-    image: "4.gif",
+    image: "mummy4.gif",
   },
   {
     name: "5",
-    image: "5.gif",
+    image: "mummy5.gif",
   },
   {
     name: "6",
-    image: "6.gif",
+    image: "mummy6.gif",
   },
   {
     name: "7",
-    image: "7.gif",
+    image: "mummy7.gif",
   },
   {
     name: "8",
-    image: "8.gif",
+    image: "mummy8.gif",
   },
-  
+  {
+    name: "9",
+    image: "mummy9.gif",
+  },
 ];
 
 const storyConfig = [

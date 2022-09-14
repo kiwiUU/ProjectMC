@@ -4,65 +4,45 @@ import { FC, useState } from "react";
 
 const raceConfig = [
   {
-    name: "apple",
+    name: "Apple",
     color: "red",
     image: "appleFace.gif"
   },
   {
-    name: "autumn",
-    color: "yellow",
-    image: "autumnFace.gif"
-  },
-  {
-    name: "blueberry",
+    name: "Blueberry",
     color: "purple",
     image: "blueberryFace.gif"
   },
   {
-    name: "candy",
+    name: "Candy",
     color: "pink",
     image: "candyFace.gif"
   },
   {
-    name: "christmas",
+    name: "Watermelon",
     color: "teal",
-    image: "christmasFace.gif"
+    image: "watermelonFace.gif"
   },
   {
-    name: "cream",
+    name: "Cream",
     color: "gray",
     image: "creamFace.gif"
   },
   {
-    name: "forest",
-    color: "green",
-    image: "forestFace.gif"
-  },
-  {
-    name: "halloween",
+    name: "Pumpkin",
     color: "orange",
-    image: "halloweenFace.gif"
+    image: "pumpkinFace.gif"
   },
   {
-    name: "snack",
-    color: "pink",
-    image: "snackFace.gif"
-  },
-  {
-    name: "summer",
-    color: "cyan",
-    image: "summerFace.gif"
-  },
-  {
-    name: "water",
+    name: "Grape",
     color: "blue",
-    image: "waterFace.gif"
-  }
+    image: "grapeFace.gif"
+  },
 ]
 
 const Story: FC = () => {
   const { t } = useTranslation("common");
-  const [image, setIamge] = useState(raceConfig[0].image);
+  const [image, setImage] = useState(raceConfig[0].image);
 
   return (
     <Flex
@@ -80,12 +60,12 @@ const Story: FC = () => {
             <Text fontWeight="bold" fontSize={["xl", "5xl"]} color="blue.500" textStyle="Symtext" lineHeight={["base", "shorter"]}>{t("descriptionTitle")}</Text>
             <Text mt={4} fontSize={["lg", "xl"]}>{t("description")}</Text>
             {raceConfig.map((v, i) => (
-                <Button key={i} variant='solid' colorScheme={v.color} onClick={() => setIamge(v.image)} mr={2} mt={[2, 4]} size={["sm", "md"]}>
+                <Button key={i} variant='solid' colorScheme={v.color} onClick={() => setImage(v.image)} mr={2} mt={[2, 4]} size={["sm", "md"]}>
                   {v.name}
                 </Button>
               ))}
           </Box>
-          <Image src={`../images/${image}`} w={["80%", "80%", "60%", "30%"]} ml={[0, 12]} mt={[8, 8, 8, 0]} alt="bandage" shadow="lg" rounded="md"/>
+          <Image src={`../images/${image}`} w={["80%", "80%", "60%", "30%"]} ml={[0, 12]} mt={[10, 10, 14, 0]} alt="bandage" shadow="lg" rounded="md"/>
       </Flex>
     </Flex>
   );

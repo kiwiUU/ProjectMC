@@ -14,11 +14,12 @@ const Minting: FC = () => {
   const [web3, setWeb3] = useState<Web3>();
   const [contract, setContract] = useState<Contract>();
   const [totalSupply, setTotalSupply] = useState<number>(0);
+  const [isSoldOut, setIsSoldOut] = useState<boolean>(false);
   const toast = useToast();
   const toastIdRef = React.useRef<ToastId>();
   
   const titleImage = "title_sm.png";
-  const loadingImage = "loading.png";
+  const loadingImage = "loading2.png";
   const mintPrice = '0.1';
 
   //console.log('Minting: ', account);
@@ -78,6 +79,13 @@ const Minting: FC = () => {
 
         setAccount(accounts[0]);
 
+        const totalSupply = await contract!.methods.totalSupply().call();
+
+        // todo: 9800으로 변경
+        if (totalSupply >= 9800) {
+          setIsSoldOut(true);
+        }
+
       } catch (error) {
           console.log(error);
       } 
@@ -96,7 +104,7 @@ const Minting: FC = () => {
   const onClickMint = async () => {
 
     try {
-
+        // todo: 5에서 0.1eth로 변경
         //const mintPriceWei = web3!.utils.toWei(mintPrice, 'ether');
         const mintPriceWei = "5";
         console.log('mintPriceWei: ', mintPriceWei);
@@ -105,7 +113,7 @@ const Minting: FC = () => {
 
         console.log('networkId: ', networkId);
 
-        // 프로덕션에서 4에서 1로 변경
+        // todo: 프로덕션에서 4에서 1로 변경
         if (networkId != 4) {
           toast({
             title: '',
@@ -202,14 +210,14 @@ const Minting: FC = () => {
       flexDir="column"
     >
       {account === "" ? (
-        <Button onClick={connectWallet} size={["md"]} colorScheme="teal" mt={4} textStyle="Symtext">
+        <Button onClick={connectWallet} size={["md"]} colorScheme="teal" mt={10} textStyle="Symtext">
           Connect to metamask
         </Button>
       ) : (
         <Menu>
           {({ isOpen }) => (
             <>
-              <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />} colorScheme="teal" mt={4} size={["md"]}>
+              <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />} colorScheme="teal" mt={10} size={["md"]}>
                 <Box w={"200px"} textOverflow="ellipsis" overflow={"hidden"}>
                   {account}
                 </Box>
@@ -221,61 +229,65 @@ const Minting: FC = () => {
           )}
         </Menu>
       )}
-      <Flex mt="4" mb="2" justifyContent="center" flexDir={["column"]}>
-        <Flex
-          justifyContent="center"
-          alignItems="end"
-        >
-          {newNFT ? (
-            <Image
-              src={newNFT.image}
-              fallbackSrc={`../images/${loadingImage}`}
-              shadow="lg"
-              rounded={"md"}
-              alt="nft"
-            />
-          ) : (
-            <Image
-              src={`../images/${loadingImage}`}
-              shadow="lg"
-              rounded={"md"}
-              alt="loading"
-            />
-          )}
-        </Flex>
-        <Flex 
-            flexDir="column" 
-            fontSize={["sm", "sm", "md"]}
-            px={2}
-            py={2}
+      {isSoldOut ? (
+        <Text textStyle="Symtext" fontSize={["3xl"]} color="orange.600" py={20}>Sold Out</Text>
+      ) : (
+        <Flex mt="8" mb="2" justifyContent="center" flexDir={["column"]}>
+          <Flex
+            justifyContent="center"
+            alignItems="end"
           >
-            <Flex direction="row" justifyContent="space-between">
-              <Stack direction="column" spacing={0}>
-                <Text color="gray.600" as='cite'>price</Text>
-                <Stack direction="row" spacing={2}>
-                  <Image src={`../images/ether.svg`} w={"12%"}/>
-                  <Text fontWeight="bold" fontSize={"md"}>0.1 ETH</Text>
-                </Stack>
-              </Stack >
-              <Stack direction="column" spacing={0}>
-                <Text color="gray.600" as='cite'>total</Text>
-                <Text fontWeight="bold" fontSize={"md"}>{totalSupply} / 11,000</Text>
-              </Stack >
-            </Flex>
-            <Button
-                size={["sm", "md"]}
-                colorScheme="orange"
-                onClick={onClickMint}
-                disabled={account === "" || isLoading}
-                isLoading={isLoading}
-                loadingText="Loading ..."
-                w="100%"
-                mt="2"
-              >
-              MINT
-            </Button>
+            {newNFT ? (
+              <Image
+                src={newNFT.image}
+                fallbackSrc={`../images/${loadingImage}`}
+                shadow="lg"
+                rounded={"md"}
+                alt="nft"
+              />
+            ) : (
+              <Image
+                src={`../images/${loadingImage}`}
+                shadow="lg"
+                rounded={"md"}
+                alt="loading"
+              />
+            )}
+          </Flex>
+          <Flex 
+              flexDir="column" 
+              fontSize={["sm", "sm", "md"]}
+              px={2}
+              py={2}
+            >
+              <Flex direction="row" justifyContent="space-between">
+                <Stack direction="column" spacing={0}>
+                  <Text color="gray.600" as='cite'>price</Text>
+                  <Stack direction="row" spacing={2}>
+                    <Image src={`../images/ether.svg`} w={"12%"}/>
+                    <Text fontWeight="bold" fontSize={"md"}>0.1 ETH</Text>
+                  </Stack>
+                </Stack >
+                <Stack direction="column" spacing={0}>
+                  <Text color="gray.600" as='cite'>total</Text>
+                  <Text fontWeight="bold" fontSize={"md"}>{totalSupply} / 9,800</Text>
+                </Stack >
+              </Flex>
+              <Button
+                  size={["sm", "md"]}
+                  colorScheme="orange"
+                  onClick={onClickMint}
+                  disabled={account === "" || isLoading}
+                  isLoading={isLoading}
+                  loadingText="Loading ..."
+                  w="100%"
+                  mt="2"
+                >
+                MINT
+              </Button>
+          </Flex>
         </Flex>
-      </Flex>
+      )}
     </Flex>
   );
 };
