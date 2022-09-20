@@ -1,4 +1,4 @@
-import { Flex, Text, useColorMode } from "@chakra-ui/react";
+import { Button, Flex, HStack, Image, Link, Text, useColorMode, VStack } from "@chakra-ui/react";
 import { FC } from "react";
 
 // @ 팀 주소 및 카피라이트에 관한 정보를 입력합니다.
@@ -7,7 +7,7 @@ const contactInfo =
 const copyRight = "© 2022 Mummy Candy";
 
 const Footer: FC = () => {
-  const { colorMode } = useColorMode();
+  const license = "http://creativecommons.org/licenses/by-sa/4.0/";
 
   return (
     <Flex
@@ -19,8 +19,16 @@ const Footer: FC = () => {
       mx={-6}
     >
       {/* <Text fontSize={["xs", "xs", "sm"]}>{contactInfo}</Text> */}
-      <Text fontSize={["xs", "md"]} mt={1}>
+      {/* <Text fontSize={["xs", "md"]} mt={1}>
         {copyRight}
+      </Text> */}
+      <Link href={license} isExternal>
+        <Image src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"/>
+      </Link>
+      <Text>This work is licensed under a{' '}
+        <Link href={license} color='green.900' isExternal>
+          <Text as='u'>Creative Commons Attribution-ShareAlike 4.0 International License</Text>
+        </Link>
       </Text>
     </Flex>
   );

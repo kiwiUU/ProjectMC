@@ -14,7 +14,7 @@ const logoImageDark = "logo_white.png";
 const openseaURL = "https://testnets.opensea.io/collection/projectlion-nft";
 const discordURL = "https://discord.gg/JV4whBWNPs";
 const instagramURL = "https://www.instagram.com/projectlion.io/";
-const twitterURL = "";
+const twitterURL = "https://twitter.com/MummyCandyNFT";
 const mintURL = "minting";
 
 

@@ -1,5 +1,5 @@
-import { ChevronDownIcon, SearchIcon } from "@chakra-ui/icons";
-import { Badge, Box, Button, Divider, Flex, IconButton, Image, Menu, MenuButton, MenuItem, MenuList, Stack, StackDivider, Text, ToastId, useColorMode, useToast } from "@chakra-ui/react";
+import { AddIcon, ChevronDownIcon, EmailIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
+import { Badge, Box, Button, Divider, Flex, HStack, IconButton, Image, Input, Menu, MenuButton, MenuItem, MenuList, Stack, StackDivider, Text, ToastId, useColorMode, useNumberInput, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Web3 from "web3";
@@ -19,16 +19,24 @@ const Minting: FC = () => {
   const toastIdRef = React.useRef<ToastId>();
   
   const titleImage = "title_sm.png";
-  const loadingImage = "loading2.png";
+  const loadingImage = "loading.png";
   const mintPrice = '0.1';
 
-  //console.log('Minting: ', account);
+  // const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+  //   useNumberInput({
+  //     step: 1,
+  //     defaultValue: 1,
+  //     min: 1,
+  //     max: 2,
+  //   })
+
+  // const inc = getIncrementButtonProps()
+  // const dec = getDecrementButtonProps()
+  // const input = getInputProps()
 
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") { 
         try {
-            console.log('useEffect');
-
             const web3 = new Web3(window.ethereum as any);
             setWeb3(web3);
 
@@ -36,9 +44,6 @@ const Minting: FC = () => {
             setContract(contract);
 
             window.ethereum.on('accountsChanged', function (accounts) {
-              console.log(`accountsChanged`);
-              console.log(`change accounts: `, accounts);
-
               const changedAccounts = accounts as Array<string>;
               const account = changedAccounts.length > 0 ? changedAccounts[0] : "";
               
@@ -47,11 +52,7 @@ const Minting: FC = () => {
             });
 
             window.ethereum.on('chainChanged', function (chainId) {
-              console.log(`chainChanged`);
-              console.log(`chainId: `, chainId);
-
               window.location.reload();
-
             });
 
             const fetchData = async (contract: Contract) => {
@@ -69,14 +70,9 @@ const Minting: FC = () => {
   }, []);
 
   const connectWallet = async () => {
-    console.log('connectWallet');
-
     if (typeof window.ethereum !== "undefined") { 
       try {
         const accounts = await web3!.eth.requestAccounts();
-
-        console.log('accounts: ', accounts);
-
         setAccount(accounts[0]);
 
         const totalSupply = await contract!.methods.totalSupply().call();
@@ -107,11 +103,7 @@ const Minting: FC = () => {
         // todo: 5에서 0.1eth로 변경
         //const mintPriceWei = web3!.utils.toWei(mintPrice, 'ether');
         const mintPriceWei = "5";
-        console.log('mintPriceWei: ', mintPriceWei);
-
         const networkId = await web3!.eth.net.getId(); 
-
-        console.log('networkId: ', networkId);
 
         // todo: 프로덕션에서 4에서 1로 변경
         if (networkId != 4) {
@@ -139,8 +131,6 @@ const Minting: FC = () => {
 
           return;
         }
-
-        console.log("isMint: ", isMint);
        
         setIsLoading(true);
 
@@ -150,29 +140,21 @@ const Minting: FC = () => {
                 value: mintPriceWei
             });
 
-        console.log('response: ', response);
-
         if (response?.status) {
           const balanceOf = await contract?.methods
           .balanceOf(account)
           .call();
-
-          console.log('balanceOf: ', balanceOf);
 
           if (balanceOf) {
 
             const myNewNFT = await contract?.methods
               .tokenOfOwnerByIndex(account, balanceOf - 1)
               .call();
-
-            console.log('myNewNFT: ', myNewNFT);
   
             if (myNewNFT) {
               const tokenURI = await contract?.methods
                 .tokenURI(myNewNFT)
                 .call();
-
-              console.log('tokenURI: ', tokenURI);
   
               if (tokenURI) {
                 const imageResponse = await axios.get(tokenURI);
@@ -180,7 +162,6 @@ const Minting: FC = () => {
                 if (imageResponse.status === 200) {
                   setNewNFT(imageResponse.data);
                   supply();
-                  console.log('mint success');
                 }
               }
             }
@@ -197,9 +178,6 @@ const Minting: FC = () => {
 
   const supply = async () => {
     const totalSupply = await contract!.methods.totalSupply().call();
-
-    console.log('totalSupply:', totalSupply);
-
     setTotalSupply(totalSupply);
   }
 
@@ -232,10 +210,10 @@ const Minting: FC = () => {
       {isSoldOut ? (
         <Text textStyle="Symtext" fontSize={["3xl"]} color="orange.600" py={20}>Sold Out</Text>
       ) : (
-        <Flex mt="8" mb="2" justifyContent="center" flexDir={["column"]}>
+        <Flex mt="8" mb="2" justifyContent="center" flexDir={["column"]} w={["100%", "50%","30%"]}>
           <Flex
             justifyContent="center"
-            alignItems="end"
+            alignItems="center"
           >
             {newNFT ? (
               <Image
@@ -257,7 +235,6 @@ const Minting: FC = () => {
           <Flex 
               flexDir="column" 
               fontSize={["sm", "sm", "md"]}
-              px={2}
               py={2}
             >
               <Flex direction="row" justifyContent="space-between">
@@ -273,6 +250,11 @@ const Minting: FC = () => {
                   <Text fontWeight="bold" fontSize={"md"}>{totalSupply} / 9,800</Text>
                 </Stack >
               </Flex>
+              {/* <HStack mt={"2"}>
+                <IconButton {...inc} aria-label='AddIcon' icon={<AddIcon />} colorScheme="orange" size={["sm", "md"]} />
+                <Input {...input} variant='outline' readOnly={true} textAlign="center" size={["sm", "md"]} borderColor="gray.200" />
+                <IconButton {...dec} aria-label='MinusIcon' icon={<MinusIcon />} colorScheme="orange" size={["sm", "md"]} />
+              </HStack> */}
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"

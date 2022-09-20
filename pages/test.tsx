@@ -28,15 +28,13 @@ const Test: NextPage = () => {
   }
 
   return (
-    <Flex>
-      <HStack maxW='320px'>
-        <Button {...inc}>+</Button>
-        <Input {...input} variant='filled' />
-        <Button {...dec}>-</Button>
-      </HStack>
-
-      <Button onClick={onClick}>클릭</Button>
+    <Flex
+      justifyContent="center"
+      alignItems="center"
+    >
+     
     </Flex>
+    
     
   )
 };
