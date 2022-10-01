@@ -1,13 +1,65 @@
 import { AbiItem } from "web3-utils"
 
-export const CONTRACT_ADDRESS = '0xa961F45a2b60Ca4B3E828b863bFED9DBaD986745';
-//export const CONTRACT_ADDRESS = '0x23634CfD3128fB9e80257F0422e45d3c2a17faC8';
-//export const CONTRACT_ADDRESS = '0x9ACD17F5561045e4e0B26DfF8D812b6d590B5352';
-// 0x920B209ae0b01BedE2FF0e58a1062a99C542E528
-// 0x8f79Af827B63B3b967343557625394e5562cA964
-
+export const CONTRACT_ADDRESS = '0x9fE71DDc12E5ba7bcc3EA13a35BF18397ef18982';
 
 export const CONTRACT_ABI: AbiItem[] = [
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "wAddresses",
+				"type": "address[]"
+			}
+		],
+		"name": "airdropNfts",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "wAddresses",
+				"type": "address[]"
+			}
+		],
+		"name": "allowlistAddresses",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "batchMintNFT",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
 	{
 		"inputs": [
 			{
@@ -82,30 +134,12 @@ export const CONTRACT_ABI: AbiItem[] = [
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "approve",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "uint256",
 				"name": "_amount",
 				"type": "uint256"
 			}
 		],
-		"name": "batchMintNFT",
+		"name": "batchMintNFTOwner",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -115,6 +149,13 @@ export const CONTRACT_ABI: AbiItem[] = [
 		"name": "mintNFT",
 		"outputs": [],
 		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "mintNFTOwner",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -135,6 +176,13 @@ export const CONTRACT_ABI: AbiItem[] = [
 		],
 		"name": "OwnershipTransferred",
 		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "preSale",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -335,6 +383,25 @@ export const CONTRACT_ABI: AbiItem[] = [
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "isAllowlistAddress",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "owner",
 				"type": "address"
 			},
@@ -345,6 +412,25 @@ export const CONTRACT_ABI: AbiItem[] = [
 			}
 		],
 		"name": "isApprovedForAll",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "isMintListAddress",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -370,6 +456,19 @@ export const CONTRACT_ABI: AbiItem[] = [
 	},
 	{
 		"inputs": [],
+		"name": "MAX_TOTAL_SUPPLY",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "metadataURI",
 		"outputs": [
 			{
@@ -382,19 +481,13 @@ export const CONTRACT_ABI: AbiItem[] = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "mintList",
+		"inputs": [],
+		"name": "MINT_PRICE",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "uint256",
 				"name": "",
-				"type": "bool"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -453,6 +546,19 @@ export const CONTRACT_ABI: AbiItem[] = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "PREMINT_PRICE",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -565,4 +671,4 @@ export const CONTRACT_ABI: AbiItem[] = [
 		"stateMutability": "view",
 		"type": "function"
 	}
-]
+];

@@ -22,18 +22,6 @@ const Minting: FC = () => {
   const loadingImage = "loading.png";
   const mintPrice = '0.1';
 
-  // const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-  //   useNumberInput({
-  //     step: 1,
-  //     defaultValue: 1,
-  //     min: 1,
-  //     max: 2,
-  //   })
-
-  // const inc = getIncrementButtonProps()
-  // const dec = getDecrementButtonProps()
-  // const input = getInputProps()
-
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") { 
         try {
@@ -58,7 +46,6 @@ const Minting: FC = () => {
             const fetchData = async (contract: Contract) => {
               const totalSupply = await contract!.methods.totalSupply().call();
               setTotalSupply(totalSupply);
-
             };
 
             fetchData(contract);
@@ -100,13 +87,14 @@ const Minting: FC = () => {
   const onClickMint = async () => {
 
     try {
-        // todo: 5에서 0.1eth로 변경
+        // todo: 5에서 0.1eth로 변경, 프리세일에서는 0.05eth로 변경
         //const mintPriceWei = web3!.utils.toWei(mintPrice, 'ether');
         const mintPriceWei = "5";
+
         const networkId = await web3!.eth.net.getId(); 
 
-        // todo: 프로덕션에서 4에서 1로 변경
-        if (networkId != 4) {
+        // todo: 프로덕션에서 5에서 1로 변경
+        if (networkId != 5) {
           toast({
             title: '',
             description: "You are connected to the wrong network.",
@@ -118,7 +106,7 @@ const Minting: FC = () => {
           return;
         }
         
-        const isMint = await contract?.methods.mintList(account).call();
+        const isMint = await contract?.methods.isMintListAddress(account).call();
 
         if (isMint) {
           toast({

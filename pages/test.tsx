@@ -11,27 +11,20 @@ import { Button, Flex, HStack, Image, Input, Tab, TabList, TabPanel, TabPanels, 
 const Test: NextPage = () => {
   console.log("Test");
 
-  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-    useNumberInput({
-      step: 1,
-      defaultValue: 1,
-      min: 1,
-      max: 2,
-    })
-
-  const inc = getIncrementButtonProps()
-  const dec = getDecrementButtonProps()
-  const input = getInputProps()
-
-  const onClick = () => {
-    console.log("input: ", input["aria-valuenow"]);
-  }
+  console.log("KEY: ", process.env.NEXT_PUBLIC_KEY);
+  
 
   return (
     <Flex
       justifyContent="center"
       alignItems="center"
     >
+      <Image
+        w={"140px"}
+        src={`../images/profile_400.png`}
+        rounded={"full"}
+        alt="loading"
+      />
      
     </Flex>
     
