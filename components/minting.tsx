@@ -6,49 +6,59 @@ import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 import { FC } from "react";
+import { BigNumber, ethers } from "ethers";
 
 const Minting: FC = () => {
   const [account, setAccount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newNFT, setNewNFT] = useState<any>(undefined);
   const [web3, setWeb3] = useState<Web3>();
-  const [contract, setContract] = useState<Contract>();
+  const [contract, setContract] = useState<ethers.Contract>();
   const [totalSupply, setTotalSupply] = useState<number>(0);
   const [isSoldOut, setIsSoldOut] = useState<boolean>(false);
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
+  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>();
   const toast = useToast();
   const toastIdRef = React.useRef<ToastId>();
   
   const titleImage = "title_sm.png";
-  const loadingImage = "loading.png";
+  const loadingImage = "dead.png";
   const mintPrice = '0.1';
+  const preMintPrice = '0.05';
 
   useEffect(() => {
+
     if (typeof window.ethereum !== "undefined") { 
         try {
-            const web3 = new Web3(window.ethereum as any);
-            setWeb3(web3);
+          
+          const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+          setProvider(provider);
 
-            const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-            setContract(contract);
+          const signer = provider.getSigner();
+          setSigner(signer);
 
-            window.ethereum.on('accountsChanged', function (accounts) {
-              const changedAccounts = accounts as Array<string>;
-              const account = changedAccounts.length > 0 ? changedAccounts[0] : "";
-              
-              setAccount(account);
+          const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+          setContract(contract);
 
-            });
+          window.ethereum.on('accountsChanged', function (accounts) {
+            const changedAccounts = accounts as Array<string>;
+            const account = changedAccounts.length > 0 ? changedAccounts[0] : "";
 
-            window.ethereum.on('chainChanged', function (chainId) {
-              window.location.reload();
-            });
+            setAccount(account);
 
-            const fetchData = async (contract: Contract) => {
-              const totalSupply = await contract!.methods.totalSupply().call();
-              setTotalSupply(totalSupply);
-            };
+          });
 
-            fetchData(contract);
+          window.ethereum.on('chainChanged', function (chainId) {
+            window.location.reload();
+          });
+
+          // const fetchData = async (contract: ethers.Contract) => {
+          //   const totalSupply = await contract.totalSupply();
+
+          //   setTotalSupply(totalSupply.toNumber());
+          // };
+
+          // fetchData(contract);
             
         } catch (error) {
             console.log(error);
@@ -57,15 +67,26 @@ const Minting: FC = () => {
   }, []);
 
   const connectWallet = async () => {
+
     if (typeof window.ethereum !== "undefined") { 
       try {
-        const accounts = await web3!.eth.requestAccounts();
-        setAccount(accounts[0]);
 
-        const totalSupply = await contract!.methods.totalSupply().call();
+        const isNetwork = await networkCheck();
+
+        if (!isNetwork) {
+          return;
+        }
+
+        await provider?.send("eth_requestAccounts", []);
+        const account = await signer?.getAddress();
+
+        account ? setAccount(account) : setAccount("");
+
+        const totalSupply = await contract?.totalSupply();
+        setTotalSupply(totalSupply.toNumber());
 
         // todo: 9800으로 변경
-        if (totalSupply >= 9800) {
+        if (totalSupply.toNumber() >= 9800) {
           setIsSoldOut(true);
         }
 
@@ -87,26 +108,18 @@ const Minting: FC = () => {
   const onClickMint = async () => {
 
     try {
-        // todo: 5에서 0.1eth로 변경, 프리세일에서는 0.05eth로 변경
-        //const mintPriceWei = web3!.utils.toWei(mintPrice, 'ether');
-        const mintPriceWei = "5";
 
-        const networkId = await web3!.eth.net.getId(); 
+        // todo: 5에서 0.1eth로 변경
+        //const mintPriceWei = ethers.utils.parseEther(mintPrice);
+        const mintPriceWei = BigNumber.from("5");
 
-        // todo: 프로덕션에서 5에서 1로 변경
-        if (networkId != 5) {
-          toast({
-            title: '',
-            description: "You are connected to the wrong network.",
-            status: 'error',
-            duration: 4000,
-            isClosable: true,
-          });
+        const isNetwork = await networkCheck();
 
+        if (!isNetwork) {
           return;
         }
         
-        const isMint = await contract?.methods.isMintListAddress(account).call();
+        const isMint = await contract?.isMintListAddress(account);
 
         if (isMint) {
           toast({
@@ -122,27 +135,19 @@ const Minting: FC = () => {
        
         setIsLoading(true);
 
-        // 민팅 가격(value), gasPrice, gas
-        const response =  await contract!.methods.mintNFT().send({
-                from: account,
-                value: mintPriceWei
-            });
+        // 민팅 가격(value)
+        const tx = await contract?.mintNFT({ value: mintPriceWei });
+        const receipt = await tx.wait();
 
-        if (response?.status) {
-          const balanceOf = await contract?.methods
-          .balanceOf(account)
-          .call();
+        if (receipt?.status) {
+          const balanceOf = await contract?.balanceOf(account);
 
           if (balanceOf) {
 
-            const myNewNFT = await contract?.methods
-              .tokenOfOwnerByIndex(account, balanceOf - 1)
-              .call();
+            const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balanceOf - 1);
   
             if (myNewNFT) {
-              const tokenURI = await contract?.methods
-                .tokenURI(myNewNFT)
-                .call();
+              const tokenURI = await contract?.tokenURI(myNewNFT);
   
               if (tokenURI) {
                 const imageResponse = await axios.get(tokenURI);
@@ -164,9 +169,118 @@ const Minting: FC = () => {
     }
   };
 
+  const onClickPreSale =async () => {
+
+    try {
+
+      // todo: 3에서 0.05eth로 변경
+      //const preMintPriceWei = ethers.utils.parseEther(preMintPrice);
+      const preMintPriceWei = BigNumber.from("3");
+
+      const isNetwork = await networkCheck();
+
+      if (!isNetwork) {
+        return;
+      }
+
+      // Define a list of allowlisted wallets
+      const allowlistedAddresses= require('allowlist.json'); 
+
+      // Select an allowlisted address to mint NFT
+      const selectedAddress = await signer?.getAddress();
+
+      // Define wallet that will be used to sign messages
+      const walletAddress = '0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465';
+      const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+      const owner = new ethers.Wallet(privateKey!);
+
+      let messageHash, signature;
+
+      // Check if selected address is in allowlist
+      // If yes, sign the wallet's address
+      if (allowlistedAddresses.includes(selectedAddress)) {
+        // Compute message hash
+        messageHash = ethers.utils.id(selectedAddress!);
+
+        // Sign the message hash
+        let messageBytes = ethers.utils.arrayify(messageHash);
+        signature = await owner.signMessage(messageBytes);
+      } else {
+        toast({
+          title: '',
+          description: "Address is not allowlisted.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+  
+        return;
+      }
+
+      setIsLoading(true);
+
+      //const recover = await contract?.recoverSigner(messageHash, signature);
+      //console.log("Message was signed by: ", recover.toString());
+
+      // 민팅 가격(value)
+      const tx = await contract?.preSaleOffChain(messageHash, signature, { value: preMintPriceWei });
+      const receipt = await tx.wait();
+
+      if (receipt?.status) {
+        const balanceOf = await contract?.balanceOf(account);
+
+        if (balanceOf) {
+
+          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balanceOf - 1);
+
+          if (myNewNFT) {
+            const tokenURI = await contract?.tokenURI(myNewNFT);
+
+            if (tokenURI) {
+              const imageResponse = await axios.get(tokenURI);
+
+              if (imageResponse.status === 200) {
+                setNewNFT(imageResponse.data);
+                supply();
+              }
+            }
+          }
+        }
+      }
+
+      setIsLoading(false);
+
+
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
+    
+  };
+
   const supply = async () => {
-    const totalSupply = await contract!.methods.totalSupply().call();
-    setTotalSupply(totalSupply);
+    const totalSupply = await contract?.totalSupply();
+    setTotalSupply(totalSupply.toNumber());
+  }
+
+  const networkCheck = async () => {
+
+    const { chainId } = await provider!.getNetwork();
+
+    // todo: 프로덕션에서 5에서 1로 변경
+    if (chainId != 5) {
+      toast({
+        title: '',
+        description: "You are connected to the wrong network.",
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+
+      return false;
+    } 
+
+    return true;
   }
 
   return (
@@ -176,15 +290,15 @@ const Minting: FC = () => {
       flexDir="column"
     >
       {account === "" ? (
-        <Button onClick={connectWallet} size={["md"]} colorScheme="teal" mt={10} textStyle="Symtext">
-          Connect to metamask
+        <Button onClick={connectWallet} size={["md"]} colorScheme="gray" mt={10} textStyle="Symtext">
+          Connect to Wallet
         </Button>
       ) : (
         <Menu>
           {({ isOpen }) => (
             <>
-              <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />} colorScheme="teal" mt={10} size={["md"]}>
-                <Box w={"200px"} textOverflow="ellipsis" overflow={"hidden"}>
+              <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />} colorScheme="gray" mt={10} size={["md"]}>
+                <Box w={"180px"} textOverflow="ellipsis" overflow={"hidden"}>
                   {account}
                 </Box>
               </MenuButton>
@@ -198,7 +312,7 @@ const Minting: FC = () => {
       {isSoldOut ? (
         <Text textStyle="Symtext" fontSize={["3xl"]} color="orange.600" py={20}>Sold Out</Text>
       ) : (
-        <Flex mt="8" mb="2" justifyContent="center" flexDir={["column"]} w={["100%", "50%","30%"]}>
+        <Flex mt="8" mb="2" justifyContent="center" flexDir={["column"]} w={["100%"]}>
           <Flex
             justifyContent="center"
             alignItems="center"
@@ -246,7 +360,7 @@ const Minting: FC = () => {
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"
-                  onClick={onClickMint}
+                  onClick={onClickPreSale}
                   disabled={account === "" || isLoading}
                   isLoading={isLoading}
                   loadingText="Loading ..."
