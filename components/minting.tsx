@@ -1,7 +1,7 @@
 import { AddIcon, ChevronDownIcon, EmailIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
-import { Badge, Box, Button, Divider, Flex, HStack, IconButton, Image, Input, Menu, MenuButton, MenuItem, MenuList, Stack, StackDivider, Text, ToastId, useColorMode, useNumberInput, useToast } from "@chakra-ui/react";
+import { Badge, Box, Button, Divider, Flex, HStack, IconButton, Image, Input, Menu, MenuButton, MenuItem, MenuList, Progress, Stack, StackDivider, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, ToastId, Tr, useColorMode, useNumberInput, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
@@ -12,22 +12,51 @@ const Minting: FC = () => {
   const [account, setAccount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newNFT, setNewNFT] = useState<any>(undefined);
-  const [web3, setWeb3] = useState<Web3>();
   const [contract, setContract] = useState<ethers.Contract>();
   const [totalSupply, setTotalSupply] = useState<number>(0);
   const [isSoldOut, setIsSoldOut] = useState<boolean>(false);
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
   const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>();
+  const [balance, setBalance] = useState<number>(0);
   const toast = useToast();
-  const toastIdRef = React.useRef<ToastId>();
-  
+
   const titleImage = "title_sm.png";
   const loadingImage = "dead.png";
+
+  // update 
   const mintPrice = '0.1';
   const preMintPrice = '0.05';
+  const maxMintCount = 3;
+
+  // todo: 프로덕션에서 5에서 1로 변경
+  const networkId = 5;
+
+  // todo: 9800으로 변경
+  const totalItems = 9800;
+
+  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+    useNumberInput({
+      step: 1,
+      defaultValue: 1,
+      min: 1,
+      max: maxMintCount,
+    });
+
+  const inc = getIncrementButtonProps();
+  const dec = getDecrementButtonProps();
+  const input = getInputProps();
+
+  const handleAccountsChanged = async (accounts: any) => {
+    console.log("handleAccountsChanged");
+
+    const changedAccounts = accounts as Array<string>;
+    const account = changedAccounts.length > 0 ? changedAccounts[0] : "";
+
+    setAccount(account);
+
+  }
 
   useEffect(() => {
-
     if (typeof window.ethereum !== "undefined") { 
         try {
           
@@ -40,31 +69,42 @@ const Minting: FC = () => {
           const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
           setContract(contract);
 
-          window.ethereum.on('accountsChanged', function (accounts) {
-            const changedAccounts = accounts as Array<string>;
-            const account = changedAccounts.length > 0 ? changedAccounts[0] : "";
-
-            setAccount(account);
-
-          });
+          window.ethereum.on('accountsChanged', handleAccountsChanged);
 
           window.ethereum.on('chainChanged', function (chainId) {
             window.location.reload();
           });
 
-          // const fetchData = async (contract: ethers.Contract) => {
-          //   const totalSupply = await contract.totalSupply();
+          return () => {
+            window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+          }
 
-          //   setTotalSupply(totalSupply.toNumber());
-          // };
-
-          // fetchData(contract);
-            
         } catch (error) {
             console.log(error);
         }
     }
+    
   }, []);
+
+  useEffect(() => {
+    const update = async () => {
+      if (contract && account) {
+        const totalSupply = await contract?.totalSupply();
+        setTotalSupply(totalSupply.toNumber());
+
+        const balance = await contract?.balanceOf(account);
+        setBalance(balance.toNumber());
+
+      } else {
+        setTotalSupply(0);
+        setBalance(0);
+      }
+      
+    }
+
+    update();
+
+  }, [account]);
 
   const connectWallet = async () => {
 
@@ -85,14 +125,17 @@ const Minting: FC = () => {
         const totalSupply = await contract?.totalSupply();
         setTotalSupply(totalSupply.toNumber());
 
-        // todo: 9800으로 변경
-        if (totalSupply.toNumber() >= 9800) {
+        const balance = await contract?.balanceOf(account);
+        setBalance(balance.toNumber());
+
+        if (totalSupply.toNumber() >= totalItems) {
           setIsSoldOut(true);
         }
 
       } catch (error) {
-          console.log(error);
+        console.log(error);
       } 
+
     } else {
       toast({
         title: '',
@@ -217,10 +260,26 @@ const Minting: FC = () => {
         return;
       }
 
-      setIsLoading(true);
-
       //const recover = await contract?.recoverSigner(messageHash, signature);
       //console.log("Message was signed by: ", recover.toString());
+
+      const isMint = await contract?.signatureUsed(signature);
+
+      console.log("isMint: ", isMint);
+
+      if (isMint) {
+        toast({
+          title: '',
+          description: "You have already minted.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+
+        return;
+      }
+
+      setIsLoading(true);
 
       // 민팅 가격(value)
       const tx = await contract?.preSaleOffChain(messageHash, signature, { value: preMintPriceWei });
@@ -267,8 +326,7 @@ const Minting: FC = () => {
 
     const { chainId } = await provider!.getNetwork();
 
-    // todo: 프로덕션에서 5에서 1로 변경
-    if (chainId != 5) {
+    if (chainId != networkId) {
       toast({
         title: '',
         description: "You are connected to the wrong network.",
@@ -281,6 +339,13 @@ const Minting: FC = () => {
     } 
 
     return true;
+  }
+
+  const disconnect = () => {
+    setAccount("");
+    setTotalSupply(0);
+    setBalance(0);
+
   }
 
   return (
@@ -303,7 +368,7 @@ const Minting: FC = () => {
                 </Box>
               </MenuButton>
               <MenuList>
-                <MenuItem onClick={() => setAccount("")}>Disconnect</MenuItem>
+                <MenuItem onClick={disconnect}>Disconnect</MenuItem>
               </MenuList>
             </>
           )}
@@ -339,24 +404,56 @@ const Minting: FC = () => {
               fontSize={["sm", "sm", "md"]}
               py={2}
             >
-              <Flex direction="row" justifyContent="space-between">
-                <Stack direction="column" spacing={0}>
-                  <Text color="gray.600" as='cite'>price</Text>
-                  <Stack direction="row" spacing={2}>
-                    <Image src={`../images/ether.svg`} w={"12%"}/>
-                    <Text fontWeight="bold" fontSize={"md"}>0.1 ETH</Text>
+              <Flex direction="column">
+                <Flex direction="column" alignItems="end">
+                  <Stack direction="row">
+                    {/* <Image src={`../images/ether.svg`} w={"12%"}/> */}
+                    <Text fontWeight="bold" fontSize={"lg"}>0.1 ETH</Text>
                   </Stack>
-                </Stack >
-                <Stack direction="column" spacing={0}>
-                  <Text color="gray.600" as='cite'>total</Text>
-                  <Text fontWeight="bold" fontSize={"md"}>{totalSupply} / 9,800</Text>
-                </Stack >
+                </Flex>
+                <Progress value={(totalSupply / 9800) * 100} mt={4}/>
+                <Flex direction="row" justifyContent="space-between" mt={1}>
+                  <Text color="gray.600" as='cite' fontSize={"sm"}>Total</Text>
+                  <Text fontSize={"sm"}>{totalSupply} / 9,800</Text>
+                </Flex >
+                <Progress value={(balance / 5) * 100} mt={4}/>
+                <Flex direction="row" justifyContent="space-between" mt={1}>
+                  <Text color="gray.600" as='cite' fontSize={"sm"}>Balance</Text>
+                  <Text fontSize={"sm"}>{balance} / 5</Text>
+                </Flex >
               </Flex>
-              {/* <HStack mt={"2"}>
-                <IconButton {...inc} aria-label='AddIcon' icon={<AddIcon />} colorScheme="orange" size={["sm", "md"]} />
-                <Input {...input} variant='outline' readOnly={true} textAlign="center" size={["sm", "md"]} borderColor="gray.200" />
-                <IconButton {...dec} aria-label='MinusIcon' icon={<MinusIcon />} colorScheme="orange" size={["sm", "md"]} />
-              </HStack> */}
+              
+              
+              {/* <TableContainer mt={4}>
+                <Table variant='simple' size='sm' colorScheme={"yellow"}>
+                  <TableCaption>Imperial to metric conversion factors</TableCaption>
+                  <Thead>
+                    <Tr>
+                      <Th>To convert</Th>
+                      <Th>into</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    <Tr>
+                      <Td ><Text color="gray.600" as='cite'>price</Text></Td>
+                      <Td isNumeric><Text fontWeight="bold" fontSize={"sm"}>0.1 ETH</Text></Td>
+                    </Tr>
+                    <Tr>
+                      <Td><Text color="gray.600" as='cite'>total</Text></Td>
+                      <Td isNumeric><Text fontWeight="bold" fontSize={"sm"}>{totalSupply} / 9,800</Text></Td>
+                    </Tr>
+                    <Tr>
+                      <Td><Text color="gray.600" as='cite'>balance</Text></Td>
+                      <Td isNumeric><Text fontWeight="bold" fontSize={"sm"}>1 / 5</Text></Td>
+                    </Tr>
+                  </Tbody>
+                </Table>
+              </TableContainer> */}
+              <HStack mt={"4"}>
+                <IconButton {...inc} aria-label='AddIcon' icon={<AddIcon />} colorScheme="gray" size={["sm", "md"]} />
+                <Input {...input} variant='filled' readOnly={true} textAlign="center" size={["sm", "md"]} />
+                <IconButton {...dec} aria-label='MinusIcon' icon={<MinusIcon />} colorScheme="gray" size={["sm", "md"]} />
+              </HStack>
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"

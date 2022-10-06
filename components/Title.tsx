@@ -20,9 +20,9 @@ const Title: FC = () => {
           alt="title"
         />
       </Box>
-      {/* <Text fontSize={["xl", "2xl"]} textStyle="Symtext" mt={"16"} color="orange.600">
+      <Text fontSize={["xl", "2xl"]} textStyle="Symtext" mt={"16"} color="orange.600">
           coming soon
-      </Text> */}
+      </Text>
     </Flex>
   );
 };
