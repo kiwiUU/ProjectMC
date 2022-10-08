@@ -2,8 +2,6 @@ import { AddIcon, ChevronDownIcon, EmailIcon, MinusIcon, SearchIcon } from "@cha
 import { Badge, Box, Button, Divider, Flex, HStack, IconButton, Image, Input, Menu, MenuButton, MenuItem, MenuList, Progress, Stack, StackDivider, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, ToastId, Tr, useColorMode, useNumberInput, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
-import Web3 from "web3";
-import { Contract } from "web3-eth-contract";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 import { FC } from "react";
 import { BigNumber, ethers } from "ethers";
@@ -18,6 +16,7 @@ const Minting: FC = () => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
   const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>();
   const [balance, setBalance] = useState<number>(0);
+  const [isMint, setIsMint] = useState<boolean>(false);
   const toast = useToast();
 
   const titleImage = "title_sm.png";
@@ -56,6 +55,10 @@ const Minting: FC = () => {
 
   }
 
+  const handleChainChanged = (chainId: any) => {
+    window.location.reload();
+  } 
+
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") { 
         try {
@@ -71,12 +74,11 @@ const Minting: FC = () => {
 
           window.ethereum.on('accountsChanged', handleAccountsChanged);
 
-          window.ethereum.on('chainChanged', function (chainId) {
-            window.location.reload();
-          });
+          window.ethereum.on('chainChanged', handleChainChanged);
 
           return () => {
             window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+            window.ethereum?.removeListener('chainChanged', handleChainChanged);
           }
 
         } catch (error) {
@@ -86,23 +88,32 @@ const Minting: FC = () => {
     
   }, []);
 
+  const update = async () => {
+    if (contract) {
+      const totalSupply = await contract.totalSupply();
+      setTotalSupply(totalSupply.toNumber());
+
+      const balance = await contract.balanceOf(account);
+      setBalance(balance.toNumber());
+
+      const availabeBalance = maxMintCount - balance.toNumber();
+
+      const isMint = availabeBalance > 0 ? true : false;
+      setIsMint(isMint);
+    } 
+  }
+
   useEffect(() => {
-    const update = async () => {
-      if (contract && account) {
-        const totalSupply = await contract?.totalSupply();
-        setTotalSupply(totalSupply.toNumber());
+    if (account) {
+      console.log("update");
+      update();
+    } else {
+      console.log("not update");
 
-        const balance = await contract?.balanceOf(account);
-        setBalance(balance.toNumber());
-
-      } else {
-        setTotalSupply(0);
-        setBalance(0);
-      }
-      
+      setTotalSupply(0);
+      setBalance(0);
+      setIsMint(false);
     }
-
-    update();
 
   }, [account]);
 
@@ -123,10 +134,6 @@ const Minting: FC = () => {
         account ? setAccount(account) : setAccount("");
 
         const totalSupply = await contract?.totalSupply();
-        setTotalSupply(totalSupply.toNumber());
-
-        const balance = await contract?.balanceOf(account);
-        setBalance(balance.toNumber());
 
         if (totalSupply.toNumber() >= totalItems) {
           setIsSoldOut(true);
@@ -161,13 +168,14 @@ const Minting: FC = () => {
         if (!isNetwork) {
           return;
         }
-        
-        const isMint = await contract?.isMintListAddress(account);
 
-        if (isMint) {
+        const mintCount = input["aria-valuenow"]!;
+        const availabeMintCount = maxMintCount - balance;
+
+        if (mintCount > availabeMintCount || mintCount < 1) {
           toast({
             title: '',
-            description: "You have already minted.",
+            description: "The maximum number of minting has been exceeded.",
             status: 'error',
             duration: 4000,
             isClosable: true,
@@ -175,29 +183,35 @@ const Minting: FC = () => {
 
           return;
         }
-       
+
         setIsLoading(true);
 
         // 민팅 가격(value)
-        const tx = await contract?.mintNFT({ value: mintPriceWei });
+        const tx = await contract?.batchMintNFT(mintCount, { value: mintPriceWei.mul(mintCount) });
+        console.log("tx: ", tx);
+
         const receipt = await tx.wait();
+        console.log("receipt: ", receipt);
 
         if (receipt?.status) {
-          const balanceOf = await contract?.balanceOf(account);
+          const balance = await contract?.balanceOf(account);
+          console.log("balance: ", balance);
 
-          if (balanceOf) {
+          if (balance.toNumber()) {
 
-            const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balanceOf - 1);
+            const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance.toNumber() - 1);
+            console.log("myNewNFT: ", myNewNFT);
   
             if (myNewNFT) {
               const tokenURI = await contract?.tokenURI(myNewNFT);
+              console.log("tokenURI: ", tokenURI);
   
               if (tokenURI) {
                 const imageResponse = await axios.get(tokenURI);
   
                 if (imageResponse.status === 200) {
                   setNewNFT(imageResponse.data);
-                  supply();
+                  update();
                 }
               }
             }
@@ -287,13 +301,18 @@ const Minting: FC = () => {
 
       if (receipt?.status) {
         const balanceOf = await contract?.balanceOf(account);
+        console.log("balanceOf: ", balanceOf);
 
         if (balanceOf) {
 
           const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balanceOf - 1);
+          console.log("myNewNFT: ", myNewNFT);
+
 
           if (myNewNFT) {
             const tokenURI = await contract?.tokenURI(myNewNFT);
+            console.log("tokenURI: ", tokenURI);
+
 
             if (tokenURI) {
               const imageResponse = await axios.get(tokenURI);
@@ -343,9 +362,22 @@ const Minting: FC = () => {
 
   const disconnect = () => {
     setAccount("");
-    setTotalSupply(0);
-    setBalance(0);
+  }
 
+  const test = () => {
+    console.log("test");
+
+    const a = BigNumber.from(1);
+
+    console.log("a: ", a);
+
+
+    if (a) {
+      console.log(true);
+    } else {
+      console.log(false);
+
+    }
   }
 
   return (
@@ -411,44 +443,17 @@ const Minting: FC = () => {
                     <Text fontWeight="bold" fontSize={"lg"}>0.1 ETH</Text>
                   </Stack>
                 </Flex>
-                <Progress value={(totalSupply / 9800) * 100} mt={4}/>
+                <Progress value={(totalSupply / totalItems) * 100} mt={4}/>
                 <Flex direction="row" justifyContent="space-between" mt={1}>
                   <Text color="gray.600" as='cite' fontSize={"sm"}>Total</Text>
-                  <Text fontSize={"sm"}>{totalSupply} / 9,800</Text>
+                  <Text fontSize={"sm"}>{totalSupply} / {totalItems}</Text>
                 </Flex >
-                <Progress value={(balance / 5) * 100} mt={4}/>
+                <Progress value={(balance / maxMintCount) * 100} mt={4}/>
                 <Flex direction="row" justifyContent="space-between" mt={1}>
                   <Text color="gray.600" as='cite' fontSize={"sm"}>Balance</Text>
-                  <Text fontSize={"sm"}>{balance} / 5</Text>
+                  <Text fontSize={"sm"}>{balance} / {maxMintCount}</Text>
                 </Flex >
               </Flex>
-              
-              
-              {/* <TableContainer mt={4}>
-                <Table variant='simple' size='sm' colorScheme={"yellow"}>
-                  <TableCaption>Imperial to metric conversion factors</TableCaption>
-                  <Thead>
-                    <Tr>
-                      <Th>To convert</Th>
-                      <Th>into</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    <Tr>
-                      <Td ><Text color="gray.600" as='cite'>price</Text></Td>
-                      <Td isNumeric><Text fontWeight="bold" fontSize={"sm"}>0.1 ETH</Text></Td>
-                    </Tr>
-                    <Tr>
-                      <Td><Text color="gray.600" as='cite'>total</Text></Td>
-                      <Td isNumeric><Text fontWeight="bold" fontSize={"sm"}>{totalSupply} / 9,800</Text></Td>
-                    </Tr>
-                    <Tr>
-                      <Td><Text color="gray.600" as='cite'>balance</Text></Td>
-                      <Td isNumeric><Text fontWeight="bold" fontSize={"sm"}>1 / 5</Text></Td>
-                    </Tr>
-                  </Tbody>
-                </Table>
-              </TableContainer> */}
               <HStack mt={"4"}>
                 <IconButton {...inc} aria-label='AddIcon' icon={<AddIcon />} colorScheme="gray" size={["sm", "md"]} />
                 <Input {...input} variant='filled' readOnly={true} textAlign="center" size={["sm", "md"]} />
@@ -457,14 +462,23 @@ const Minting: FC = () => {
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"
-                  onClick={onClickPreSale}
-                  disabled={account === "" || isLoading}
+                  onClick={onClickMint}
+                  disabled={account === "" || !isMint || isLoading}
                   isLoading={isLoading}
                   loadingText="Loading ..."
                   w="100%"
                   mt="2"
                 >
                 MINT
+              </Button>
+              <Button
+                  size={["sm", "md"]}
+                  colorScheme="orange"
+                  onClick={test}
+                  w="100%"
+                  mt="2"
+                >
+                test
               </Button>
           </Flex>
         </Flex>
