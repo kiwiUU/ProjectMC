@@ -93,7 +93,8 @@ const Minting: FC = () => {
       const totalSupply = await contract.totalSupply();
       setTotalSupply(totalSupply.toNumber());
 
-      const balance = await contract.balanceOf(account);
+      const balance = await contract.mintlistAddress(account);
+      console.log("balance: ", balance);
       setBalance(balance.toNumber());
 
       const availabeBalance = maxMintCount - balance.toNumber();
@@ -188,23 +189,18 @@ const Minting: FC = () => {
 
         // 민팅 가격(value)
         const tx = await contract?.batchMintNFT(mintCount, { value: mintPriceWei.mul(mintCount) });
-        console.log("tx: ", tx);
 
         const receipt = await tx.wait();
-        console.log("receipt: ", receipt);
 
         if (receipt?.status) {
           const balance = await contract?.balanceOf(account);
-          console.log("balance: ", balance);
 
           if (balance.toNumber()) {
 
             const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance.toNumber() - 1);
-            console.log("myNewNFT: ", myNewNFT);
   
-            if (myNewNFT) {
+            if (myNewNFT.toNumber()) {
               const tokenURI = await contract?.tokenURI(myNewNFT);
-              console.log("tokenURI: ", tokenURI);
   
               if (tokenURI) {
                 const imageResponse = await axios.get(tokenURI);
@@ -226,7 +222,7 @@ const Minting: FC = () => {
     }
   };
 
-  const onClickPreSale =async () => {
+  const onClickPreSale = async () => {
 
     try {
 
@@ -300,26 +296,21 @@ const Minting: FC = () => {
       const receipt = await tx.wait();
 
       if (receipt?.status) {
-        const balanceOf = await contract?.balanceOf(account);
-        console.log("balanceOf: ", balanceOf);
+        const balance = await contract?.balanceOf(account);
 
-        if (balanceOf) {
+        if (balance.toNumber()) {
 
-          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balanceOf - 1);
-          console.log("myNewNFT: ", myNewNFT);
+          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance - 1);
 
-
-          if (myNewNFT) {
+          if (myNewNFT.toNumber()) {
             const tokenURI = await contract?.tokenURI(myNewNFT);
-            console.log("tokenURI: ", tokenURI);
-
 
             if (tokenURI) {
               const imageResponse = await axios.get(tokenURI);
 
               if (imageResponse.status === 200) {
                 setNewNFT(imageResponse.data);
-                supply();
+                update();
               }
             }
           }
@@ -335,11 +326,6 @@ const Minting: FC = () => {
     }
     
   };
-
-  const supply = async () => {
-    const totalSupply = await contract?.totalSupply();
-    setTotalSupply(totalSupply.toNumber());
-  }
 
   const networkCheck = async () => {
 
@@ -364,20 +350,10 @@ const Minting: FC = () => {
     setAccount("");
   }
 
-  const test = () => {
-    console.log("test");
+  const test = async () => {
+    const e = await signer?.getBalance();
+    console.log("ether: ", e?.toString());
 
-    const a = BigNumber.from(1);
-
-    console.log("a: ", a);
-
-
-    if (a) {
-      console.log(true);
-    } else {
-      console.log(false);
-
-    }
   }
 
   return (
