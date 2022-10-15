@@ -350,12 +350,6 @@ const Minting: FC = () => {
     setAccount("");
   }
 
-  const test = async () => {
-    const e = await signer?.getBalance();
-    console.log("ether: ", e?.toString());
-
-  }
-
   return (
     <Flex
       justifyContent="center"
@@ -446,15 +440,6 @@ const Minting: FC = () => {
                   mt="2"
                 >
                 MINT
-              </Button>
-              <Button
-                  size={["sm", "md"]}
-                  colorScheme="orange"
-                  onClick={test}
-                  w="100%"
-                  mt="2"
-                >
-                test
               </Button>
           </Flex>
         </Flex>
