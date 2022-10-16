@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Accordion, Box, Flex, Text } from "@chakra-ui/react";
 import { useTranslation } from "next-i18next";
 import { FC } from "react";
 import QuestionCard from "./QuestionCard";
@@ -35,15 +35,20 @@ const questionCardConfig = [
     title: "question6",
     description: "answer6",
   },
+  // {
+  //   justifyContent: "center",
+  //   title: "question7",
+  //   description: "answer7",
+  // },
+  // {
+  //   justifyContent: "center",
+  //   title: "question8",
+  //   description: "answer8",
+  // },
   {
     justifyContent: "center",
-    title: "question7",
-    description: "answer7",
-  },
-  {
-    justifyContent: "center",
-    title: "question8",
-    description: "answer8",
+    title: "question9",
+    description: "answer9",
   },
 ];
 
@@ -52,22 +57,23 @@ const Question: FC = () => {
 
   return (
     <Flex
-      minH="100vh"
       alignItems="center"
       flexDir="column"
       mt={[100, 240]}
     >
       <Text fontWeight="bold" fontSize={["xl", "4xl"]} color="teal.500" textStyle="Symtext" mb={4} textAlign="center">{t("questions")}</Text>
-      {questionCardConfig.map((v, i) => {
-        return (
-          <QuestionCard
-            key={i}
-            justifyContent={v.justifyContent}
-            title={t(v.title)}
-            description={t(v.description)}
-          />
-        );
-      })}
+      <Accordion allowMultiple w={["full", "80%", "60%", "40%"]} borderBottomColor="orange.600" borderBottomWidth="1px">
+        {questionCardConfig.map((v, i) => {
+          return (
+            <QuestionCard
+              key={i}
+              justifyContent={v.justifyContent}
+              title={t(v.title)}
+              description={t(v.description)}
+            />
+          );
+         })}
+      </Accordion>
     </Flex>
   );
 };

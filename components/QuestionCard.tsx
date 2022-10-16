@@ -1,4 +1,4 @@
-import { Box, Flex, Text, useColorMode } from "@chakra-ui/react";
+import { AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Flex, Text, useColorMode } from "@chakra-ui/react";
 import React, { FC } from "react";
 
 interface QuestionCardProps {
@@ -14,28 +14,21 @@ const QuestionCard: FC<QuestionCardProps> = ({
 }) => {
 
   return (
-    <Flex
-      w="100%"
-      justifyContent={justifyContent}
-    >
-      <Flex
-        w={["full", "full", "60%", "50%"]}
-        m={2}
-        px={4}
-        py={2}
-        justifyContent="center"
-        flexDir="column"
-        shadow="lg"
-        bgColor="orange.400"
-      >
-        <Text fontSize={["lg", "2xl"]} fontWeight="bold">
-          {title}
+    <AccordionItem borderColor="orange.600" borderTopWidth={"2px"}>
+      <AccordionButton _expanded={{ bg: 'orange.400', color: 'black' }} py={["3", "4"]}>
+          <Box flex='1' textAlign='left'>
+            <Text fontSize={["lg", "2xl"]} fontWeight="bold">
+              {title}
+            </Text>
+          </Box>
+          <AccordionIcon />
+        </AccordionButton>
+      <AccordionPanel py={["4", "6"]}>
+        <Text fontSize={["md", "xl"]} whiteSpace="pre-wrap">
+           {description}
         </Text>
-        <Text fontSize={["md", "xl"]}>
-          {description}
-        </Text>
-      </Flex>
-    </Flex>
+      </AccordionPanel>
+    </AccordionItem>
   );
 };
 

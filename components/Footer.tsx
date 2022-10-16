@@ -17,11 +17,8 @@ const Footer: FC = () => {
       p={[4, 4, 2]}
       bgColor="yellow.600"
       mx={-6}
+      mt={["32", "40"]}
     >
-      {/* <Text fontSize={["xs", "xs", "sm"]}>{contactInfo}</Text> */}
-      {/* <Text fontSize={["xs", "md"]} mt={1}>
-        {copyRight}
-      </Text> */}
       <Link href={license} isExternal>
         <Image src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"/>
       </Link>
