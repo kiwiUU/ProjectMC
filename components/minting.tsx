@@ -236,29 +236,18 @@ const Minting: FC = () => {
         return;
       }
 
-      // Define a list of allowlisted wallets
-      const allowlistedAddresses= require('allowlist.json'); 
-
       // Select an allowlisted address to mint NFT
       const selectedAddress = await signer?.getAddress();
+      console.log("selectedAddress: ", selectedAddress);
 
-      // Define wallet that will be used to sign messages
-      const walletAddress = '0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465';
-      const privateKey = process.env.PRIVATE_KEY;
-      const owner = new ethers.Wallet(privateKey!);
+      const data = await fetch("/api/crypto/" + selectedAddress);
+      const { messageHash, signature, isSuccess } = await data.json();
 
-      let messageHash, signature;
+      console.log("messageHash: ", messageHash);
+      console.log("signature: ", signature);
+      console.log("isSuccess: ", isSuccess);
 
-      // Check if selected address is in allowlist
-      // If yes, sign the wallet's address
-      if (allowlistedAddresses.includes(selectedAddress)) {
-        // Compute message hash
-        messageHash = ethers.utils.id(selectedAddress!);
-
-        // Sign the message hash
-        let messageBytes = ethers.utils.arrayify(messageHash);
-        signature = await owner.signMessage(messageBytes);
-      } else {
+      if (!isSuccess) {
         toast({
           title: '',
           description: "Address is not allowlisted.",
@@ -268,7 +257,7 @@ const Minting: FC = () => {
         });
   
         return;
-      }
+      } 
 
       //const recover = await contract?.recoverSigner(messageHash, signature);
       //console.log("Message was signed by: ", recover.toString());

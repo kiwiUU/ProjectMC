@@ -6,27 +6,27 @@ import { ethers, Signer } from "ethers";
 import { setInterval } from "timers/promises";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 
-interface Props {
-  owner: ethers.Wallet;
-}
+const Test: NextPage = () => {
 
-const Test: NextPage<Props> = ({ owner }) => {
-
-  const a = 1;
-  const p = process.env.NEXT_PUBLIC_PRIVATE_KEY;
 
   const test = async () => {
     console.log("test1");
     
-  
-    console.log("owner: ", owner);
+    const data = await fetch("/api/hello/0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465");
+    const result = await data.json();
+    console.log(result);
+    
 
   };
 
   const test2 = async () => {
     console.log("test2");
     
-   
+    const privateKey = "1111";
+    const owner = new ethers.Wallet(privateKey!);
+
+    console.log("owner: ", owner);
+    console.log("owner: ", JSON.stringify(owner));
 
   };
 
@@ -62,8 +62,8 @@ const Test: NextPage<Props> = ({ owner }) => {
 export async function getStaticProps() {
 
   const privateKey = process.env.PRIVATE_KEY;
-  const owner = new ethers.Wallet(privateKey!);
-  const j = owner
+  const w = new ethers.Wallet(privateKey!);
+  const owner = JSON.stringify(w)
 
   return { props: { owner } }
 }
