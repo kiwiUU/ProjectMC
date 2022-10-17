@@ -244,7 +244,7 @@ const Minting: FC = () => {
 
       // Define wallet that will be used to sign messages
       const walletAddress = '0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465';
-      const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+      const privateKey = process.env.PRIVATE_KEY;
       const owner = new ethers.Wallet(privateKey!);
 
       let messageHash, signature;

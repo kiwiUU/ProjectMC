@@ -6,31 +6,27 @@ import { ethers, Signer } from "ethers";
 import { setInterval } from "timers/promises";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 
-const Test: NextPage = () => {
+interface Props {
+  owner: ethers.Wallet;
+}
 
-  const [age, setAge] = useState(1);
-  const [name, setName] = useState<string>("kang");
+const Test: NextPage<Props> = ({ owner }) => {
 
-  useEffect(() => {
-    console.log("age: ", age);
-    console.log("name: ", name);
-
-  }, [age]);
-
-  
-  function delay(time: number) {
-    return new Promise(resolve => setTimeout(resolve, time));
-  } 
+  const a = 1;
+  const p = process.env.NEXT_PUBLIC_PRIVATE_KEY;
 
   const test = async () => {
+    console.log("test1");
     
-    console.log("test");
+  
+    console.log("owner: ", owner);
 
-    setAge(2);
-    //await delay(1000);
-    setName("lee");
+  };
 
-    console.log("test end");
+  const test2 = async () => {
+    console.log("test2");
+    
+   
 
   };
 
@@ -48,16 +44,28 @@ const Test: NextPage = () => {
           >
           test
         </Button>
+        <Button
+            size={["sm", "md"]}
+            colorScheme="orange"
+            onClick={test2}
+            w="100%"
+            mt="2"
+          >
+          test2
+        </Button>
     </Flex>
     
     
   )
 };
 
-export const getStaticProps = async ({ locale }: { locale: string }) => ({
-  props: {
-    ...(await serverSideTranslations(locale, ["common"])),
-  },
-});
+export async function getStaticProps() {
+
+  const privateKey = process.env.PRIVATE_KEY;
+  const owner = new ethers.Wallet(privateKey!);
+  const j = owner
+
+  return { props: { owner } }
+}
 
 export default Test;

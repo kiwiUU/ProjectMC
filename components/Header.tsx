@@ -37,8 +37,8 @@ const Header: FC = () => {
         <Flex alignItems="center">
           {/* <Button colorScheme="orange" size={["xs", "xs", "sm"]} mr={2} onClick={onOpen}>
             mint
-          </Button> */}
-          {/* <Link href={openseaURL}>
+          </Button>
+          <Link href={openseaURL}>
             <Button variant="ghost" size={["xs", "xs", "sm"]}>
               <Image src="../images/opensea.png" alt="opensea" w={6} />
             </Button>
