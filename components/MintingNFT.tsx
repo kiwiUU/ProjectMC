@@ -6,7 +6,7 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 import { FC } from "react";
 import { BigNumber, ethers } from "ethers";
 
-const Minting: FC = () => {
+const MintingNFT: FC = () => {
   const [account, setAccount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newNFT, setNewNFT] = useState<any>(undefined);
@@ -437,4 +437,4 @@ const Minting: FC = () => {
   );
 };
 
-export default Minting;
+export default MintingNFT;
