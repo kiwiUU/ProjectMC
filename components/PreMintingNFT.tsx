@@ -6,7 +6,7 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 import { FC } from "react";
 import { BigNumber, ethers } from "ethers";
 
-const MintingNFT: FC = () => {
+const PreMintingNFT: FC = () => {
   const [account, setAccount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newNFT, setNewNFT] = useState<any>(undefined);
@@ -15,35 +15,19 @@ const MintingNFT: FC = () => {
   const [isSoldOut, setIsSoldOut] = useState<boolean>(false);
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
   const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>();
-  const [balance, setBalance] = useState<number>(0);
   const [isMint, setIsMint] = useState<boolean>(false);
   const toast = useToast();
 
-  const titleImage = "title_sm.png";
   const loadingImage = "dead.png";
 
   // update 
-  const mintPrice = '0.1';
   const preMintPrice = '0.05';
-  const maxMintCount = 3;
 
   // todo: 프로덕션에서 5에서 1로 변경
   const networkId = 5;
 
   // todo: 9800으로 변경
   const totalItems = 9800;
-
-  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-    useNumberInput({
-      step: 1,
-      defaultValue: 1,
-      min: 1,
-      max: maxMintCount,
-    });
-
-  const inc = getIncrementButtonProps();
-  const dec = getDecrementButtonProps();
-  const input = getInputProps();
 
   const handleAccountsChanged = async (accounts: any) => {
     console.log("handleAccountsChanged");
@@ -92,13 +76,25 @@ const MintingNFT: FC = () => {
       const totalSupply = await contract.totalSupply();
       setTotalSupply(totalSupply.toNumber());
 
-      const balance = await contract.mintlistAddress(account);
-      setBalance(balance.toNumber());
+      const allowlistedAddresses = require('allowlist.json');
+      const selectedAddress = await signer?.getAddress();
 
-      const availabeBalance = maxMintCount - balance.toNumber();
+      let signature;
 
-      const isMint = availabeBalance > 0 ? true : false;
-      setIsMint(isMint);
+      // Check if selected address is in allowlist
+      // If yes, sign the wallet's address
+      if (allowlistedAddresses.includes(selectedAddress)) {
+        const result = await sign(selectedAddress!);
+        signature = result.signature;
+
+        const signatureUsed = await contract.signatureUsed(signature);
+
+        setIsMint(!signatureUsed);
+      
+      } else {
+        setIsMint(false);
+      }
+      
     } 
   }
 
@@ -107,11 +103,19 @@ const MintingNFT: FC = () => {
       update();
     } else {
       setTotalSupply(0);
-      setBalance(0);
       setIsMint(false);
     }
 
   }, [account]);
+
+  const sign = async (address: string) => {
+    // Select an allowlisted address to mint NFT
+    const data = await fetch("/api/crypto/" + address);
+    const result = await data.json();
+
+    return result;
+
+  }
 
   const connectWallet = async () => {
 
@@ -151,70 +155,98 @@ const MintingNFT: FC = () => {
     
   };
 
-  const onClickMint = async () => {
+  const onClickPreSale = async () => {
 
     try {
 
-        // todo: 5에서 0.1eth로 변경
-        //const mintPriceWei = ethers.utils.parseEther(mintPrice);
-        const mintPriceWei = BigNumber.from("5");
+      // todo: 3에서 0.05eth로 변경
+      //const preMintPriceWei = ethers.utils.parseEther(preMintPrice);
+      const preMintPriceWei = BigNumber.from("3");
 
-        const isNetwork = await networkCheck();
+      const isNetwork = await networkCheck();
 
-        if (!isNetwork) {
-          return;
-        }
+      if (!isNetwork) {
+        return;
+      }
 
-        const mintCount = input["aria-valuenow"]!;
-        const availabeMintCount = maxMintCount - balance;
+      const allowlistedAddresses = require('allowlist.json'); 
+      const selectedAddress = await signer?.getAddress();
+      let messageHash, signature;
 
-        if (mintCount > availabeMintCount || mintCount < 1) {
-          toast({
-            title: '',
-            description: "The maximum number of minting has been exceeded.",
-            status: 'error',
-            duration: 4000,
-            isClosable: true,
-          });
+      // Check if selected address is in allowlist
+      // If yes, sign the wallet's address
+      if (allowlistedAddresses.includes(selectedAddress)) {
+        // Compute message hash
+        messageHash = ethers.utils.id(selectedAddress!);
 
-          return;
-        }
-
-        setIsLoading(true);
-
-        // 민팅 가격(value)
-        const tx = await contract?.batchMintNFT(mintCount, { value: mintPriceWei.mul(mintCount) });
-
-        const receipt = await tx.wait();
-
-        if (receipt?.status) {
-          const balance = await contract?.balanceOf(account);
-
-          if (balance.toNumber()) {
-
-            const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance.toNumber() - 1);
+        const result = await sign(selectedAddress!);
+        signature = result.signature;
+      
+      } else {
+        toast({
+          title: '',
+          description: "Address is not allowlisted.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
   
-            if (myNewNFT.toNumber()) {
-              const tokenURI = await contract?.tokenURI(myNewNFT);
-  
-              if (tokenURI) {
-                const imageResponse = await axios.get(tokenURI);
-  
-                if (imageResponse.status === 200) {
-                  setNewNFT(imageResponse.data);
-                  update();
-                }
+        return;
+      }
+
+      //const recover = await contract?.recoverSigner(messageHash, signature);
+      //console.log("Message was signed by: ", recover.toString());
+
+      const isMint = await contract?.signatureUsed(signature);
+
+      if (isMint) {
+        toast({
+          title: '',
+          description: "You have already minted.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+
+        return;
+      }
+
+      setIsLoading(true);
+
+      // 민팅 가격(value)
+      const tx = await contract?.preSaleOffChain(messageHash, signature, { value: preMintPriceWei });
+      const receipt = await tx.wait();
+
+      if (receipt?.status) {
+        const balance = await contract?.balanceOf(account);
+
+        if (balance.toNumber()) {
+
+          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance - 1);
+
+          if (myNewNFT.toNumber()) {
+            const tokenURI = await contract?.tokenURI(myNewNFT);
+
+            if (tokenURI) {
+              const imageResponse = await axios.get(tokenURI);
+
+              if (imageResponse.status === 200) {
+                setNewNFT(imageResponse.data);
+                update();
               }
             }
           }
         }
+      }
 
-        setIsLoading(false);
+      setIsLoading(false);
+
 
     } catch (error) {
-        console.log(error);
-        setIsLoading(false);
+      console.log(error);
+      setIsLoading(false);
     }
+    
   };
 
   const networkCheck = async () => {
@@ -300,7 +332,7 @@ const MintingNFT: FC = () => {
                 <Flex direction="column" alignItems="end">
                   <Stack direction="row">
                     {/* <Image src={`../images/ether.svg`} w={"12%"}/> */}
-                    <Text fontWeight="bold" fontSize={"lg"}>0.1 ETH</Text>
+                    <Text fontWeight="bold" fontSize={"lg"}>{preMintPrice} ETH</Text>
                   </Stack>
                 </Flex>
                 <Progress value={(totalSupply / totalItems) * 100} mt={4}/>
@@ -308,26 +340,16 @@ const MintingNFT: FC = () => {
                   <Text color="gray.600" as='cite' fontSize={"sm"}>Total</Text>
                   <Text fontSize={"sm"}>{totalSupply} / {totalItems}</Text>
                 </Flex >
-                <Progress value={(balance / maxMintCount) * 100} mt={4}/>
-                <Flex direction="row" justifyContent="space-between" mt={1}>
-                  <Text color="gray.600" as='cite' fontSize={"sm"}>Balance</Text>
-                  <Text fontSize={"sm"}>{balance} / {maxMintCount}</Text>
-                </Flex >
               </Flex>
-              <HStack mt={"4"}>
-                <IconButton {...inc} aria-label='AddIcon' icon={<AddIcon />} colorScheme="gray" size={["sm", "md"]} />
-                <Input {...input} variant='filled' readOnly={true} textAlign="center" size={["sm", "md"]} />
-                <IconButton {...dec} aria-label='MinusIcon' icon={<MinusIcon />} colorScheme="gray" size={["sm", "md"]} />
-              </HStack>
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"
-                  onClick={onClickMint}
+                  onClick={onClickPreSale}
                   disabled={account === "" || !isMint || isLoading}
                   isLoading={isLoading}
                   loadingText="Loading ..."
                   w="100%"
-                  mt="2"
+                  mt="4"
                 >
                 MINT
               </Button>
@@ -338,4 +360,4 @@ const MintingNFT: FC = () => {
   );
 };
 
-export default MintingNFT;
+export default PreMintingNFT;

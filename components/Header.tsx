@@ -7,6 +7,7 @@ import { FaDiscord, FaInstagram, FaTwitter } from "react-icons/fa";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react"
 import MintingNFT from "./MintingNFT";
+import PreMintingNFT from "./PreMintingNFT";
 
 // @ 로고 이미지는 public/images를 교체하시면 됩니다. URL은 우리 프로젝트의 URL을 작성하시면 됩니다.
 const logoImage = "logo.png";
@@ -59,7 +60,7 @@ const Header: FC = () => {
         >
           <ModalCloseButton />
           <ModalBody>
-            <MintingNFT />
+            <PreMintingNFT />
           </ModalBody>
         </ModalContent>
       </Modal>
