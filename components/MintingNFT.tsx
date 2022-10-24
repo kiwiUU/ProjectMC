@@ -19,12 +19,10 @@ const MintingNFT: FC = () => {
   const [isMint, setIsMint] = useState<boolean>(false);
   const toast = useToast();
 
-  const titleImage = "title_sm.png";
   const loadingImage = "dead.png";
 
   // update 
   const mintPrice = '0.1';
-  const preMintPrice = '0.05';
   const maxMintCount = 3;
 
   // todo: 프로덕션에서 5에서 1로 변경

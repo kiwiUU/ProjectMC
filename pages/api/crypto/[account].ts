@@ -1,19 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { ethers } from 'ethers';
 import type { NextApiRequest, NextApiResponse } from 'next'
-
-// type Data = {
-//   name: string
-// }
-
-// export default function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse<Data>
-// ) {
-//   res.status(200).json({ name: 'John Doe' })
-// }
+import redisClient from '../../../lib/redisConnection';
 
 type Data = {
+  success: boolean,
   signature: string
 }
 
@@ -22,21 +12,26 @@ export default  async function handler(
   res: NextApiResponse<Data>
 ) {
 
-  const { account } = req.query;
+  try {
+    const { account } = req.query;
 
-  const privateKey = process.env.WALLET_PRIVATE_KEY;
-  const owner = new ethers.Wallet(privateKey!);
+    let signature = await redisClient.get(account as string); 
 
-  let messageHash = "";
-  let signature = "";
+    if (signature) {
+      res.status(200).json({ 
+        success: true,
+        signature: signature 
+      });
+    } else {
+      res.status(200).json({ 
+        success: false,
+        signature: "" 
+      });
+    }
 
-  // Compute message hash
-  messageHash = ethers.utils.id(account as string);
-
-  // Sign the message hash
-  let messageBytes = ethers.utils.arrayify(messageHash);
-  signature = await owner.signMessage(messageBytes);
-
-  res.status(200).json({ signature })
+  } catch (error) {
+    console.log(error);
+  }
+  
 }
 

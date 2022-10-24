@@ -76,21 +76,18 @@ const PreMintingNFT: FC = () => {
       const totalSupply = await contract.totalSupply();
       setTotalSupply(totalSupply.toNumber());
 
-      const allowlistedAddresses = require('allowlist.json');
       const selectedAddress = await signer?.getAddress();
-
-      let signature;
 
       // Check if selected address is in allowlist
       // If yes, sign the wallet's address
-      if (allowlistedAddresses.includes(selectedAddress)) {
-        const result = await sign(selectedAddress!);
-        signature = result.signature;
+      const data = await sign(selectedAddress!);
+      const success = data.success;
 
+      if (success) {
+        const signature = data.signature;
         const signatureUsed = await contract.signatureUsed(signature);
 
         setIsMint(!signatureUsed);
-      
       } else {
         setIsMint(false);
       }
@@ -109,12 +106,11 @@ const PreMintingNFT: FC = () => {
   }, [account]);
 
   const sign = async (address: string) => {
-    // Select an allowlisted address to mint NFT
-    const data = await fetch("/api/crypto/" + address);
-    const result = await data.json();
 
-    return result;
-
+    const result = await fetch(`/api/crypto/${address}`);
+    let data = await result.json();
+    
+    return data;
   }
 
   const connectWallet = async () => {
@@ -169,19 +165,15 @@ const PreMintingNFT: FC = () => {
         return;
       }
 
-      const allowlistedAddresses = require('allowlist.json'); 
       const selectedAddress = await signer?.getAddress();
       let messageHash, signature;
 
-      // Check if selected address is in allowlist
-      // If yes, sign the wallet's address
-      if (allowlistedAddresses.includes(selectedAddress)) {
-        // Compute message hash
-        messageHash = ethers.utils.id(selectedAddress!);
+      const data = await sign(selectedAddress!);
+      const success = data.success;
 
-        const result = await sign(selectedAddress!);
-        signature = result.signature;
-      
+      if (success) {
+        messageHash = ethers.utils.keccak256(selectedAddress!);
+        signature = data.signature;
       } else {
         toast({
           title: '',
@@ -272,6 +264,10 @@ const PreMintingNFT: FC = () => {
     setAccount("");
   }
 
+  const test = async () => {
+    await contract?.setWhitelistMintEnabled(true);
+  }
+
   return (
     <Flex
       justifyContent="center"
@@ -352,6 +348,15 @@ const PreMintingNFT: FC = () => {
                   mt="4"
                 >
                 MINT
+              </Button>
+              <Button
+                  size={["sm", "md"]}
+                  colorScheme="orange"
+                  onClick={test}
+                  w="100%"
+                  mt="4"
+                >
+                test
               </Button>
           </Flex>
         </Flex>

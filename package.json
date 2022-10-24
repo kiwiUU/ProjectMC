@@ -20,6 +20,7 @@
     "caver-js": "^1.8.2",
     "ethers": "^5.7.1",
     "framer-motion": "^6.3.13",
+    "ioredis": "^5.2.3",
     "next": "12.1.6",
     "next-i18next": "^11.0.0",
     "react": "18.2.0",
