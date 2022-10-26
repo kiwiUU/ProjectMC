@@ -12,7 +12,7 @@ import PreMintingNFT from "./PreMintingNFT";
 // @ 로고 이미지는 public/images를 교체하시면 됩니다. URL은 우리 프로젝트의 URL을 작성하시면 됩니다.
 const logoImage = "logo.png";
 const logoImageDark = "logo_white.png";
-const openseaURL = "https://testnets.opensea.io/collection/projectlion-nft";
+const openseaURL = "https://opensea.io/collection/mummy-candy";
 const discordURL = "https://discord.gg/JV4whBWNPs";
 const instagramURL = "https://www.instagram.com/projectlion.io/";
 const twitterURL = "https://twitter.com/MummyCandyNFT";
@@ -38,12 +38,12 @@ const Header: FC = () => {
         <Flex alignItems="center">
           {/* <Button colorScheme="orange" size={["xs", "xs", "sm"]} mr={2} onClick={onOpen}>
             mint
-          </Button>
+          </Button> */}
           <Link href={openseaURL}>
             <Button variant="ghost" size={["xs", "xs", "sm"]}>
               <Image src="../images/opensea.png" alt="opensea" w={6} />
             </Button>
-          </Link> */}
+          </Link>
           <Link href={twitterURL}>
             <Button variant="ghost" size={["xs", "xs", "sm"]}>
               <FaTwitter size={24} />

@@ -9,7 +9,7 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS } from "web3Config";
 const Test: NextPage = () => {
 
   const test1 = async () => {
-    const data = await fetch("/api/crypto/0xaa");
+    const data = await fetch("/api/crypto/0x8FdeB8a3F4E172754af0D52473C02Ea91489676F");
     const result = await data.json();
 
     console.log("result: ", result);
