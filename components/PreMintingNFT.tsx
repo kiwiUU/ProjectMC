@@ -265,8 +265,8 @@ const PreMintingNFT: FC = () => {
   }
 
   const test = async () => {
-    await contract?.setTokenURI("https://gateway.pinata.cloud/ipfs/QmTKir9jDJ9hyTTNPJsr7C1idBn3kT68sBiXnXJxncLeVB");
-    await contract?.setIsRevealed(true);
+    await contract?.setNotRevealedURI("https://gateway.pinata.cloud/ipfs/QmPz6P5aPHiCTuu1guysuxtBCb1eY57vuF69Kv8zcKCxhf");
+    await contract?.setIsRevealed(false);
   }
 
   return (
