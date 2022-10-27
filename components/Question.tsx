@@ -40,11 +40,11 @@ const questionCardConfig = [
     title: "question7",
     description: "answer7",
   },
-  // {
-  //   justifyContent: "center",
-  //   title: "question8",
-  //   description: "answer8",
-  // },
+  {
+    justifyContent: "center",
+    title: "question8",
+    description: "answer8",
+  },
   {
     justifyContent: "center",
     title: "question9",

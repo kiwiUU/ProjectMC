@@ -157,7 +157,7 @@ const PreMintingNFT: FC = () => {
 
       // todo: 3에서 0.05eth로 변경
       //const preMintPriceWei = ethers.utils.parseEther(preMintPrice);
-      const preMintPriceWei = BigNumber.from("3");
+      const preMintPriceWei = BigNumber.from("0");
 
       const isNetwork = await networkCheck();
 
@@ -265,8 +265,12 @@ const PreMintingNFT: FC = () => {
   }
 
   const test = async () => {
-    await contract?.setNotRevealedURI("https://gateway.pinata.cloud/ipfs/QmPz6P5aPHiCTuu1guysuxtBCb1eY57vuF69Kv8zcKCxhf");
-    await contract?.setIsRevealed(false);
+    //await contract?.setWhitelistMintEnabled(true);
+    //await contract?.setPreMintPrice(BigNumber.from(0));
+
+    const p = await contract?.preMintPrice();
+    console.log("p: ", p);
+
   }
 
   return (
