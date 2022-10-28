@@ -65,7 +65,7 @@ const Story: FC = () => {
                 </Button>
               ))}
           </Box>
-          <Image src={`../images/${image}`} w={["80%", "80%", "60%", "30%"]} ml={[0, 12]} mt={[10, 10, 14, 0]} alt="bandage" shadow="lg" rounded="md"/>
+          <Image src={`../images/${image}`} w={["80%", "80%", "60%", "30%"]} ml={[0, 12]} mt={[10, 10, 14, 0]} alt="bandage" shadow="lg" rounded="md" bgColor="#ece9e7"/>
       </Flex>
     </Flex>
   );
