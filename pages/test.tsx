@@ -16,11 +16,17 @@ const Test: NextPage = () => {
   }
 
   const test2 = async () => {
-    const keccak256 = ethers.utils.keccak256("0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465");
+    const keccak256 = ethers.utils.keccak256("0xfe1e7dc29512c1f351753753d7c9f2181dbcb465");
     
     console.log("keccak256: ", keccak256);
   }
 
+  const test3 = async () => {
+    const s = "0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465";
+    const t = s.toLowerCase();
+
+    console.log("t: ", t);
+  }
 
   return (
     <Flex
@@ -30,7 +36,7 @@ const Test: NextPage = () => {
       <Button
           size={["sm", "md"]}
           colorScheme="orange"
-          onClick={test1}
+          onClick={test3}
           w="100%"
           mt="4"
         >

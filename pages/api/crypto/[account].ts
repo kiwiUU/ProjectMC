@@ -15,7 +15,7 @@ export default  async function handler(
   try {
     const { account } = req.query;
 
-    let signature = await redisClient.get(account as string); 
+    let signature = await redisClient.get((account as string).toLowerCase()); 
 
     if (signature) {
       res.status(200).json({ 
