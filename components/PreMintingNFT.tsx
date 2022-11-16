@@ -15,19 +15,34 @@ const PreMintingNFT: FC = () => {
   const [isSoldOut, setIsSoldOut] = useState<boolean>(false);
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
   const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>();
+  const [balance, setBalance] = useState<number>(0);
   const [isMint, setIsMint] = useState<boolean>(false);
   const toast = useToast();
 
-  const loadingImage = "dead.png";
+  const loadingImage = "logo.png";
 
   // update 
+  // preSaleOffChain1, preMintlistAddress1, preMintEnabled1
   const preMintPrice = '0.05';
+  const maxMintCount = 3;
 
   // todo: 프로덕션에서 5에서 1로 변경
   const networkId = 5;
 
   // todo: 9800으로 변경
   const totalItems = 9800;
+
+  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+    useNumberInput({
+      step: 1,
+      defaultValue: 1,
+      min: 1,
+      max: maxMintCount,
+    });
+
+  const inc = getIncrementButtonProps();
+  const dec = getDecrementButtonProps();
+  const input = getInputProps();
 
   const handleAccountsChanged = async (accounts: any) => {
     console.log("handleAccountsChanged");
@@ -76,21 +91,13 @@ const PreMintingNFT: FC = () => {
       const totalSupply = await contract.totalSupply();
       setTotalSupply(totalSupply.toNumber());
 
-      const selectedAddress = await signer?.getAddress();
+      const balance = await contract.preMintlistAddress1(account);
+      setBalance(balance.toNumber());
 
-      // Check if selected address is in allowlist
-      // If yes, sign the wallet's address
-      const data = await sign(selectedAddress!);
-      const success = data.success;
+      const availabeBalance = maxMintCount - balance.toNumber();
 
-      if (success) {
-        const signature = data.signature;
-        const signatureUsed = await contract.signatureUsed(signature);
-
-        setIsMint(!signatureUsed);
-      } else {
-        setIsMint(false);
-      }
+      const isMint = availabeBalance > 0 ? true : false;
+      setIsMint(isMint);
       
     } 
   }
@@ -100,6 +107,7 @@ const PreMintingNFT: FC = () => {
       update();
     } else {
       setTotalSupply(0);
+      setBalance(0);
       setIsMint(false);
     }
 
@@ -157,7 +165,7 @@ const PreMintingNFT: FC = () => {
 
       // todo: 3에서 0.05eth로 변경
       //const preMintPriceWei = ethers.utils.parseEther(preMintPrice);
-      const preMintPriceWei = BigNumber.from("3");
+      const preMintPriceWei = BigNumber.from("5");
 
       const isNetwork = await networkCheck();
 
@@ -189,12 +197,13 @@ const PreMintingNFT: FC = () => {
       //const recover = await contract?.recoverSigner(messageHash, signature);
       //console.log("Message was signed by: ", recover.toString());
 
-      const isMint = await contract?.signatureUsed(signature);
+      const mintCount = input["aria-valuenow"]!;
+      const availabeMintCount = maxMintCount - balance;
 
-      if (isMint) {
+      if (mintCount > availabeMintCount || mintCount < 1) {
         toast({
           title: '',
-          description: "You have already minted.",
+          description: "The maximum number of minting has been exceeded.",
           status: 'error',
           duration: 4000,
           isClosable: true,
@@ -206,7 +215,7 @@ const PreMintingNFT: FC = () => {
       setIsLoading(true);
 
       // 민팅 가격(value)
-      const tx = await contract?.preSaleOffChain(messageHash, signature, { value: preMintPriceWei });
+      const tx = await contract?.preSaleOffChain1(messageHash, signature, mintCount, { value: preMintPriceWei.mul(mintCount) });
       const receipt = await tx.wait();
 
       if (receipt?.status) {
@@ -265,12 +274,11 @@ const PreMintingNFT: FC = () => {
   }
 
   const test = async () => {
-    await contract?.setWhitelistMintEnabled(true);
+    //await contract?.setPreMintEnabled2(true);
     //await contract?.setPreMintPrice(BigNumber.from(0));
 
     // const p = await contract?.preMintPrice();
     // console.log("p: ", p);
-
   }
 
   return (
@@ -341,7 +349,17 @@ const PreMintingNFT: FC = () => {
                   <Text color="gray.600" as='cite' fontSize={"sm"}>Total</Text>
                   <Text fontSize={"sm"}>{totalSupply} / {totalItems}</Text>
                 </Flex >
+                <Progress value={(balance / maxMintCount) * 100} mt={4}/>
+                <Flex direction="row" justifyContent="space-between" mt={1}>
+                  <Text color="gray.600" as='cite' fontSize={"sm"}>Balance</Text>
+                  <Text fontSize={"sm"}>{balance} / {maxMintCount}</Text>
+                </Flex >
               </Flex>
+              <HStack mt={"4"}>
+                <IconButton {...inc} aria-label='AddIcon' icon={<AddIcon />} colorScheme="gray" size={["sm", "md"]} />
+                <Input {...input} variant='filled' readOnly={true} textAlign="center" size={["sm", "md"]} />
+                <IconButton {...dec} aria-label='MinusIcon' icon={<MinusIcon />} colorScheme="gray" size={["sm", "md"]} />
+              </HStack>
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"

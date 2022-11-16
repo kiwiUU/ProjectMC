@@ -19,7 +19,7 @@ const MintingNFT: FC = () => {
   const [isMint, setIsMint] = useState<boolean>(false);
   const toast = useToast();
 
-  const loadingImage = "dead.png";
+  const loadingImage = "logo.png";
 
   // update 
   const mintPrice = '0.1';

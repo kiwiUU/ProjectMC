@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-export const CONTRACT_ADDRESS = '0x688364A9a750b38378D161D78B81cF150f208351';
+export const CONTRACT_ADDRESS = '0xA469Aa832d47a06fEeA9E89b737D8951ab47e455';
 
 export const CONTRACT_ABI: ethers.ContractInterface = [
   {
@@ -142,6 +142,19 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
     "name": "allowlistAddresses",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "allowlistMintEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -323,6 +336,19 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
   },
   {
     "inputs": [],
+    "name": "mintEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "mintNFTOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -420,7 +446,7 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
   },
   {
     "inputs": [],
-    "name": "paused",
+    "name": "preMintEnabled1",
     "outputs": [
       {
         "internalType": "bool",
@@ -433,7 +459,45 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
   },
   {
     "inputs": [],
-    "name": "preMintPrice",
+    "name": "preMintEnabled2",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "preMintlistAddress1",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "preMintlistAddress2",
     "outputs": [
       {
         "internalType": "uint256",
@@ -462,9 +526,37 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
         "internalType": "bytes",
         "name": "signature",
         "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
       }
     ],
-    "name": "preSaleOffChain",
+    "name": "preSaleOffChain1",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "preSaleOffChain2",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -554,6 +646,19 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
   {
     "inputs": [
       {
+        "internalType": "bool",
+        "name": "_allowlistMintEnabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setAllowlistMintEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "operator",
         "type": "address"
@@ -611,6 +716,19 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
   {
     "inputs": [
       {
+        "internalType": "bool",
+        "name": "_mintEnabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setMintEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_mintPrice",
         "type": "uint256"
@@ -638,11 +756,11 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
     "inputs": [
       {
         "internalType": "bool",
-        "name": "_paused",
+        "name": "_preMintEnabled1",
         "type": "bool"
       }
     ],
-    "name": "setPaused",
+    "name": "setPreMintEnabled1",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -650,12 +768,12 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_preMintPrice",
-        "type": "uint256"
+        "internalType": "bool",
+        "name": "_preMintEnabled2",
+        "type": "bool"
       }
     ],
-    "name": "setPreMintPrice",
+    "name": "setPreMintEnabled2",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -671,38 +789,6 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
     "name": "setTokenURI",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_whitelistMintEnabled",
-        "type": "bool"
-      }
-    ],
-    "name": "setWhitelistMintEnabled",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes",
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "name": "signatureUsed",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -846,19 +932,6 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "whitelistMintEnabled",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ];
