@@ -13,7 +13,7 @@ import PreMintingNFT from "./PreMintingNFT";
 const logoImage = "logo.png";
 const logoImageDark = "logo_white.png";
 const openseaURL = "https://opensea.io/collection/mummy-candy";
-const discordURL = "https://discord.gg/JV4whBWNPs";
+const discordURL = "https://discord.gg/W3mSPxjMQC";
 const instagramURL = "https://www.instagram.com/projectlion.io/";
 const twitterURL = "https://twitter.com/MummyCandyNFT";
 const mintURL = "minting";
@@ -38,15 +38,20 @@ const Header: FC = () => {
         <Flex alignItems="center">
           {/* <Button colorScheme="orange" size={["xs", "xs", "sm"]} mr={2} onClick={onOpen}>
             mint
-          </Button> */}
+          </Button>
           <Link href={openseaURL}>
             <Button variant="ghost" size={["xs", "xs", "sm"]}>
               <Image src="../images/opensea.png" alt="opensea" w={6} />
             </Button>
-          </Link>
+          </Link> */}
           <Link href={twitterURL}>
             <Button variant="ghost" size={["xs", "xs", "sm"]}>
               <FaTwitter size={24} />
+            </Button>
+          </Link>
+          <Link href={discordURL}>
+            <Button variant="ghost" size={["xs", "xs", "sm"]}>
+              <FaDiscord size={24} />
             </Button>
           </Link>
         </Flex>
@@ -60,7 +65,7 @@ const Header: FC = () => {
         >
           <ModalCloseButton />
           <ModalBody>
-            <PreMintingNFT />
+            <MintingNFT />
           </ModalBody>
         </ModalContent>
       </Modal>

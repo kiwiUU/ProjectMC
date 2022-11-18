@@ -274,7 +274,7 @@ const PreMintingNFT: FC = () => {
   }
 
   const test = async () => {
-    //await contract?.setPreMintEnabled2(true);
+    await contract?.setMintEnabled(true);
     //await contract?.setPreMintPrice(BigNumber.from(0));
 
     // const p = await contract?.preMintPrice();
