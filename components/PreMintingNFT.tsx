@@ -250,6 +250,101 @@ const PreMintingNFT: FC = () => {
     
   };
 
+  const onClickPreSale_merkleTree = async () => {
+
+    try {
+
+      // todo: 3에서 0.05eth로 변경
+      //const preMintPriceWei = ethers.utils.parseEther(preMintPrice);
+      const preMintPriceWei = BigNumber.from("5");
+
+      const isNetwork = await networkCheck();
+
+      if (!isNetwork) {
+        return;
+      }
+
+      const selectedAddress = await signer?.getAddress();
+      let proof;
+
+      const data = await getProof(selectedAddress!);
+      const success = data.success;
+
+      if (success) {
+        proof = data.proof;
+      } else {
+        toast({
+          title: '',
+          description: "Address is not allowlisted.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+  
+        return;
+      }
+
+      const mintCount = input["aria-valuenow"]!;
+      const availabeMintCount = maxMintCount - balance;
+
+      if (mintCount > availabeMintCount || mintCount < 1) {
+        toast({
+          title: '',
+          description: "The maximum number of minting has been exceeded.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+
+        return;
+      }
+
+      setIsLoading(true);
+
+      // 민팅 가격(value)
+      const tx = await contract?.preSaleMerkleTree1(proof, mintCount, { value: preMintPriceWei.mul(mintCount) });
+      const receipt = await tx.wait();
+
+      if (receipt?.status) {
+        const balance = await contract?.balanceOf(account);
+
+        if (balance.toNumber()) {
+
+          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance - 1);
+
+          if (myNewNFT.toNumber()) {
+            const tokenURI = await contract?.tokenURI(myNewNFT);
+
+            if (tokenURI) {
+              const imageResponse = await axios.get(tokenURI);
+
+              if (imageResponse.status === 200) {
+                setNewNFT(imageResponse.data);
+                update();
+              }
+            }
+          }
+        }
+      }
+
+      setIsLoading(false);
+
+
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
+    
+  };
+
+  const getProof = async (address: string) => {
+
+    const result = await fetch(`/api/merkleTree/${address}`);
+    let data = await result.json();
+    
+    return data;
+  }
+
   const networkCheck = async () => {
 
     const { chainId } = await provider!.getNetwork();
@@ -274,12 +369,20 @@ const PreMintingNFT: FC = () => {
   }
 
   const test = async () => {
-    await contract?.setMintEnabled(true);
+    //await contract?.setPreMintEnabled1(true);
+    await contract?.setSigner("0x40C71Aaa7437F591d7aB3ebD9f6C363A1160c25e");
     //await contract?.setPreMintPrice(BigNumber.from(0));
 
     // const p = await contract?.preMintPrice();
     // console.log("p: ", p);
   }
+
+  const test2 = async () => {
+    const result = await fetch(`/api/merkleTree/0xfe1E7Dc29512C1F351753753D7c9F2181dbCb465`);
+    let data = await result.json();
+    
+    console.log("data: ", data);
+  } 
 
   return (
     <Flex
@@ -363,7 +466,7 @@ const PreMintingNFT: FC = () => {
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"
-                  onClick={onClickPreSale}
+                  onClick={onClickPreSale_merkleTree}
                   disabled={account === "" || !isMint || isLoading}
                   isLoading={isLoading}
                   loadingText="Loading ..."
@@ -375,7 +478,7 @@ const PreMintingNFT: FC = () => {
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"
-                  onClick={test}
+                  onClick={test2}
                   w="100%"
                   mt="4"
                 >
