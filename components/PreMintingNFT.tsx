@@ -22,15 +22,15 @@ const PreMintingNFT: FC = () => {
   const loadingImage = "logo.png";
 
   // update 
-  // preSaleOffChain1, preMintlistAddress1, preMintEnabled1
+  // preSaleOffChain1, preMintlistAddress1
   const preMintPrice = '0.05';
   const maxMintCount = 3;
 
   // todo: 프로덕션에서 5에서 1로 변경
   const networkId = 5;
 
-  // todo: 9800으로 변경
-  const totalItems = 9800;
+  // todo: 민팅 단계마다 변경
+  const totalItems = 1000;
 
   const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
     useNumberInput({
@@ -113,14 +113,6 @@ const PreMintingNFT: FC = () => {
 
   }, [account]);
 
-  const sign = async (address: string) => {
-
-    const result = await fetch(`/api/crypto/${address}`);
-    let data = await result.json();
-    
-    return data;
-  }
-
   const connectWallet = async () => {
 
     if (typeof window.ethereum !== "undefined") { 
@@ -160,97 +152,6 @@ const PreMintingNFT: FC = () => {
   };
 
   const onClickPreSale = async () => {
-
-    try {
-
-      // todo: 3에서 0.05eth로 변경
-      //const preMintPriceWei = ethers.utils.parseEther(preMintPrice);
-      const preMintPriceWei = BigNumber.from("5");
-
-      const isNetwork = await networkCheck();
-
-      if (!isNetwork) {
-        return;
-      }
-
-      const selectedAddress = await signer?.getAddress();
-      let messageHash, signature;
-
-      const data = await sign(selectedAddress!);
-      const success = data.success;
-
-      if (success) {
-        messageHash = ethers.utils.keccak256(selectedAddress!);
-        signature = data.signature;
-      } else {
-        toast({
-          title: '',
-          description: "Address is not allowlisted.",
-          status: 'error',
-          duration: 4000,
-          isClosable: true,
-        });
-  
-        return;
-      }
-
-      //const recover = await contract?.recoverSigner(messageHash, signature);
-      //console.log("Message was signed by: ", recover.toString());
-
-      const mintCount = input["aria-valuenow"]!;
-      const availabeMintCount = maxMintCount - balance;
-
-      if (mintCount > availabeMintCount || mintCount < 1) {
-        toast({
-          title: '',
-          description: "The maximum number of minting has been exceeded.",
-          status: 'error',
-          duration: 4000,
-          isClosable: true,
-        });
-
-        return;
-      }
-
-      setIsLoading(true);
-
-      // 민팅 가격(value)
-      const tx = await contract?.preSaleOffChain1(messageHash, signature, mintCount, { value: preMintPriceWei.mul(mintCount) });
-      const receipt = await tx.wait();
-
-      if (receipt?.status) {
-        const balance = await contract?.balanceOf(account);
-
-        if (balance.toNumber()) {
-
-          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance - 1);
-
-          if (myNewNFT.toNumber()) {
-            const tokenURI = await contract?.tokenURI(myNewNFT);
-
-            if (tokenURI) {
-              const imageResponse = await axios.get(tokenURI);
-
-              if (imageResponse.status === 200) {
-                setNewNFT(imageResponse.data);
-                update();
-              }
-            }
-          }
-        }
-      }
-
-      setIsLoading(false);
-
-
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
-    
-  };
-
-  const onClickPreSale_merkleTree = async () => {
 
     try {
 
@@ -466,7 +367,7 @@ const PreMintingNFT: FC = () => {
               <Button
                   size={["sm", "md"]}
                   colorScheme="orange"
-                  onClick={onClickPreSale_merkleTree}
+                  onClick={onClickPreSale}
                   disabled={account === "" || !isMint || isLoading}
                   isLoading={isLoading}
                   loadingText="Loading ..."

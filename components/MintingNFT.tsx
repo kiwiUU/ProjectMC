@@ -28,8 +28,8 @@ const MintingNFT: FC = () => {
   // todo: 프로덕션에서 5에서 1로 변경
   const networkId = 5;
 
-  // todo: 9800으로 변경
-  const totalItems = 9800;
+  // todo: 민팅 단계마다 변경
+  const totalItems = 1000;
 
   const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
     useNumberInput({

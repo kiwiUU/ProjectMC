@@ -30,9 +30,6 @@ export default  async function handler(
         if (v[0] == (account as string).toLowerCase()) {
             proof = tree.getProof(i);
 
-            console.log('Value:', v);
-            console.log('Proof:', proof);
-
             return res.status(200).json({
                     success: true,
                     proof: proof
