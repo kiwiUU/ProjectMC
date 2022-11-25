@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-export const CONTRACT_ADDRESS = '0xB19e11bC3e16C0AAEC167430A4606B89925527eF';
+export const CONTRACT_ADDRESS = '0xBC6eA19D98090Fc2fCfaBc054D6D2e8fdB5CF161';
 
 export const CONTRACT_ABI: ethers.ContractInterface = [
 	{
@@ -132,6 +132,24 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "proof",
+				"type": "bytes32[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "eventMint",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "mintNFTOwner",
 		"outputs": [],
@@ -171,6 +189,24 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
 			}
 		],
 		"name": "preSaleMerkleTree1",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "proof",
+				"type": "bytes32[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "preSaleMerkleTree2",
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"
@@ -247,6 +283,19 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
 			}
 		],
 		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bool",
+				"name": "_eventMintEnabled",
+				"type": "bool"
+			}
+		],
+		"name": "setEventMintEnabled",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -456,6 +505,38 @@ export const CONTRACT_ABI: ethers.ContractInterface = [
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "eventlistAddress",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "eventMintEnabled",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",

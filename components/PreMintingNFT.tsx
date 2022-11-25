@@ -22,7 +22,8 @@ const PreMintingNFT: FC = () => {
   const loadingImage = "logo.png";
 
   // update 
-  // preSaleOffChain1, preMintlistAddress1
+  // preSaleMerkleTree1, preMintlistAddress1
+  // eventMint, eventlistAddress
   const preMintPrice = '0.05';
   const maxMintCount = 3;
 
