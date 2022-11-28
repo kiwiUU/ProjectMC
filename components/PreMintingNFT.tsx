@@ -9,7 +9,7 @@ import { BigNumber, ethers } from "ethers";
 const PreMintingNFT: FC = () => {
   const [account, setAccount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [newNFT, setNewNFT] = useState<any>(undefined);
+  const [newNFT, setNewNFT] = useState<string>("");
   const [contract, setContract] = useState<ethers.Contract>();
   const [totalSupply, setTotalSupply] = useState<number>(0);
   const [isSoldOut, setIsSoldOut] = useState<boolean>(false);
@@ -20,6 +20,7 @@ const PreMintingNFT: FC = () => {
   const toast = useToast();
 
   const loadingImage = "logo.png";
+  const successImage = "unrevealed.gif"
 
   // update 
   // preSaleMerkleTree1, preMintlistAddress1
@@ -208,25 +209,8 @@ const PreMintingNFT: FC = () => {
       const receipt = await tx.wait();
 
       if (receipt?.status) {
-        const balance = await contract?.balanceOf(account);
-
-        if (balance.toNumber()) {
-
-          const myNewNFT = await contract?.tokenOfOwnerByIndex(account, balance - 1);
-
-          if (myNewNFT.toNumber()) {
-            const tokenURI = await contract?.tokenURI(myNewNFT);
-
-            if (tokenURI) {
-              const imageResponse = await axios.get(tokenURI);
-
-              if (imageResponse.status === 200) {
-                setNewNFT(imageResponse.data);
-                update();
-              }
-            }
-          }
-        }
+        setNewNFT(`../images/${successImage}`);
+        update();
       }
 
       setIsLoading(false);
@@ -322,8 +306,8 @@ const PreMintingNFT: FC = () => {
           >
             {newNFT ? (
               <Image
-                src={newNFT.image}
-                fallbackSrc={`../images/${loadingImage}`}
+                src={newNFT}
+                fallbackSrc={`../images/${successImage}`}
                 shadow="lg"
                 rounded={"md"}
                 alt="nft"

@@ -65,7 +65,7 @@ const Header: FC = () => {
         >
           <ModalCloseButton />
           <ModalBody>
-            <PreMintingNFT />
+            <MintingNFT />
           </ModalBody>
         </ModalContent>
       </Modal>
